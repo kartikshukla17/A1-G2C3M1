@@ -1,0 +1,35 @@
+<svg width="120" height="160" viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg">
+  <!-- Pizza Girl Character -->
+  <!-- Head -->
+  <circle cx="60" cy="40" r="25" fill="#FDBCB4" stroke="#333" stroke-width="2"/>
+  
+  <!-- Hair -->
+  <path d="M35 25 Q60 10 85 25 Q85 15 60 15 Q35 15 35 25" fill="#8B4513" stroke="#333" stroke-width="1"/>
+  
+  <!-- Eyes -->
+  <circle cx="52" cy="38" r="3" fill="#333"/>
+  <circle cx="68" cy="38" r="3" fill="#333"/>
+  
+  <!-- Smile -->
+  <path d="M52 48 Q60 52 68 48" stroke="#333" stroke-width="2" fill="none"/>
+  
+  <!-- Body -->
+  <rect x="45" y="60" width="30" height="40" rx="5" fill="#FF6B6B" stroke="#333" stroke-width="2"/>
+  
+  <!-- Arms -->
+  <circle cx="35" cy="75" r="8" fill="#FDBCB4" stroke="#333" stroke-width="2"/>
+  <circle cx="85" cy="75" r="8" fill="#FDBCB4" stroke="#333" stroke-width="2"/>
+  
+  <!-- Legs -->
+  <rect x="50" y="100" width="8" height="30" fill="#4169E1" stroke="#333" stroke-width="2"/>
+  <rect x="62" y="100" width="8" height="30" fill="#4169E1" stroke="#333" stroke-width="2"/>
+  
+  <!-- Feet -->
+  <ellipse cx="54" cy="135" rx="6" ry="4" fill="#8B4513" stroke="#333" stroke-width="1"/>
+  <ellipse cx="66" cy="135" rx="6" ry="4" fill="#8B4513" stroke="#333" stroke-width="1"/>
+  
+  <!-- Pizza slice in hand -->
+  <path d="M25 70 L35 65 L30 80 Z" fill="#FFD700" stroke="#333" stroke-width="1"/>
+  <circle cx="28" cy="72" r="2" fill="#FF4500"/>
+  <circle cx="32" cy="75" r="1.5" fill="#228B22"/>
+</svg>

@@ -1,0 +1,8 @@
+<svg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+  <!-- Top Right Quarter -->
+  <path d="M 40 40 L 40 10 A 30 30 0 0 1 70 40 Z" fill="#E9E9E9" stroke="#222" stroke-width="2"/>
+  <!-- Pizza toppings dots -->
+  <circle cx="55" cy="25" r="2" fill="#FF6B6B"/>
+  <circle cx="50" cy="30" r="1.5" fill="#4ECDC4"/>
+  <circle cx="60" cy="35" r="1.5" fill="#45B7D1"/>
+</svg>

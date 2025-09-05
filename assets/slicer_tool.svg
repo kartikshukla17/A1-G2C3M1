@@ -1,0 +1,33 @@
+<svg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+  <!-- Slicer Tool Icon -->
+  <defs>
+    <linearGradient id="handleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B4513;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#A0522D;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="bladeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#E8E8E8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#C0C0C0;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Handle -->
+  <rect x="15" y="45" width="25" height="8" rx="4" fill="url(#handleGradient)" stroke="#654321" stroke-width="1"/>
+  
+  <!-- Blade -->
+  <path d="M40 49 L65 35 L67 37 L42 51 Z" fill="url(#bladeGradient)" stroke="#999" stroke-width="0.5"/>
+  
+  <!-- Blade edge highlight -->
+  <line x1="40" y1="49" x2="65" y2="35" stroke="#FFF" stroke-width="1" opacity="0.7"/>
+  
+  <!-- Magic sparkles -->
+  <circle cx="55" cy="25" r="2" fill="#F1C40F" opacity="0.8">
+    <animate attributeName="opacity" values="0.8;0.3;0.8" dur="1.5s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="62" cy="30" r="1.5" fill="#F39C12" opacity="0.6">
+    <animate attributeName="opacity" values="0.6;0.2;0.6" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="50" cy="32" r="1" fill="#E67E22" opacity="0.7">
+    <animate attributeName="opacity" values="0.7;0.1;0.7" dur="1.2s" repeatCount="indefinite"/>
+  </circle>
+</svg>
