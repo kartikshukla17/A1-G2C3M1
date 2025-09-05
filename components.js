@@ -752,13 +752,48 @@ const RightRegion = createComponent('RightRegion', (props) => {
 
 const SceneFrame = createComponent('SceneFrame', (props) => {
     const { state = {}, onStateChange = () => {} } = props;
-    const { showToolPanel = false, toolMode = 'slicer', toolRailHeader = '', railHeader = '', toolRailNote = '', availableParts = [] } = state;
+    const { 
+        showToolPanel = false, 
+        toolMode = 'slicer', 
+        toolRailHeader = '', 
+        railHeader = '', 
+        toolRailNote = '', 
+        availableParts = [],
+        options = [],
+        selectedOptionKey,
+        correctOptionKey,
+        feedbackVariant,
+        feedbackText
+    } = state;
+    
+
+    
+    const renderRightPanel = () => {
+        if (!showToolPanel) return '';
+        
+        if (toolMode === 'quiz') {
+            return QuizRail.renderFunction({
+                options,
+                selectedOptionKey,
+                correctOptionKey,
+                feedbackVariant,
+                feedbackText,
+                onOptionClick: (optionKey) => {
+                    if (window.wholePartsState && window.wholePartsState.selectQuizOption) {
+                        window.wholePartsState.selectQuizOption(optionKey);
+                    }
+                }
+            });
+        }
+        
+        return ToolRail.renderFunction({ toolMode, toolRailHeader, railHeader, toolRailNote, availableParts });
+    };
     
     return html`
         <div class="scene-frame">
-            <div class="scene-frame-interior">
+            <div class="scene-frame-interior ${toolMode === 'quiz' ? 'quiz-mode' : ''}">
                 ${CanvasArea.renderFunction({ state })}
-                ${showToolPanel ? ToolRail.renderFunction({ toolMode, toolRailHeader, railHeader, toolRailNote, availableParts }) : ''}
+                ${renderRightPanel()}
             </div>
         </div>
     `;
@@ -766,10 +801,40 @@ const SceneFrame = createComponent('SceneFrame', (props) => {
 
 const CanvasArea = createComponent('CanvasArea', (props) => {
     const { state = {} } = props;
-    const { cut = false, showPartLabels = false, canvasCaption = null, dimCanvas = false, placedParts = [], showToolPanel = false, foodType = 'cheesecake' } = state;
+    const { 
+        cut = false, 
+        showPartLabels = false, 
+        canvasCaption = null, 
+        dimCanvas = false, 
+        placedParts = [], 
+        showToolPanel = false, 
+        foodType = 'cheesecake',
+        toolMode = 'slicer'
+    } = state;
     
     const canvasClass = showToolPanel ? 'canvas-area with-tool-panel' : 'canvas-area';
     const foodLabel = foodType === 'pizza' ? 'Pizza' : 'Cheesecake';
+    
+    // Quiz mode shows cookie graphic
+    if (toolMode === 'quiz') {
+        return html`
+            <div class="${canvasClass} quiz-canvas">
+                <div class="canvas-content">
+                    <div class="cookie-graphic">
+                        <h3 class="cookie-title">Cookie</h3>
+                        <div class="cookie-drawing">
+                            <svg width="200" height="200" viewBox="0 0 200 200" class="cookie-svg">
+                                <circle cx="100" cy="100" r="90" fill="none" stroke="#111" stroke-width="3"/>
+                                <line x1="100" y1="10" x2="100" y2="190" stroke="#111" stroke-width="2"/>
+                                <line x1="10" y1="100" x2="190" y2="100" stroke="#111" stroke-width="2"/>
+                            </svg>
+                        </div>
+                    </div>
+                    ${canvasCaption ? `<div class="canvas-caption">${canvasCaption}</div>` : ''}
+                </div>
+            </div>
+        `;
+    }
     
     return html`
         <div class="${canvasClass}">
@@ -817,6 +882,111 @@ const ToolRail = createComponent('ToolRail', (props) => {
         </div>
     `;
 });
+
+// OptionButton Component for Quiz
+const OptionButton = createComponent('OptionButton', (props) => {
+    const { 
+        optionKey, 
+        label, 
+        selectedOptionKey, 
+        correctOptionKey, 
+        onClick,
+        disabled = false 
+    } = props;
+    
+    const buttonRef = useRef(null);
+    const [isPressed, setIsPressed] = useState(false);
+    
+    // Determine button state
+    let buttonState = 'neutral';
+    if (selectedOptionKey === optionKey) {
+        buttonState = selectedOptionKey === correctOptionKey ? 'correct' : 'wrong';
+    }
+    
+    const handleClick = () => {
+        if (!disabled && onClick) {
+            onClick(optionKey);
+        }
+    };
+    
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleClick();
+        }
+    };
+    
+    return html`
+        <button 
+            ref="${buttonRef}"
+            class="option-button option-button-${buttonState} ${isPressed ? 'pressed' : ''}"
+            onclick="${handleClick}"
+            onkeydown="${handleKeyDown}"
+            ${disabled ? 'disabled' : ''}
+            role="button"
+            aria-pressed="${selectedOptionKey === optionKey}"
+            tabindex="0"
+        >
+            <span class="option-button-label" style="pointer-events: none; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">
+                ${label}
+            </span>
+        </button>
+    `;
+});
+
+// FeedbackCard Component for Quiz
+const FeedbackCard = createComponent('FeedbackCard', (props) => {
+    const { feedbackVariant, feedbackText } = props;
+    
+    if (feedbackVariant === 'none' || !feedbackText) {
+        return '';
+    }
+    
+    return html`
+        <div class="feedback-card feedback-card-${feedbackVariant}">
+            <span style="pointer-events: none; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">
+                ${feedbackText}
+            </span>
+        </div>
+    `;
+});
+
+// QuizRail Component
+const QuizRail = {
+    renderFunction: (props) => {
+        const { 
+            options = [], 
+            selectedOptionKey, 
+            correctOptionKey, 
+            feedbackVariant, 
+            feedbackText,
+            onOptionClick 
+        } = props;
+
+        const optionButtons = options.map(option => 
+            OptionButton.renderFunction({
+                optionKey: option.key,
+                label: option.label,
+                selectedOptionKey,
+                correctOptionKey,
+                onClick: onOptionClick
+            })
+        ).join('');
+        
+        const feedbackCardHtml = FeedbackCard.renderFunction({ feedbackVariant, feedbackText });
+
+        return `
+            <div class="quiz-rail">
+                <div class="option-stack">
+                    ${optionButtons}
+                </div>
+                <div class="feedback-card-wrapper">
+                    ${feedbackCardHtml}
+                </div>
+            </div>
+        `;
+    }
+};
 
 const SpeechBubble = createComponent('SpeechBubble', (props) => {
     const { speech = '' } = props;
@@ -1117,7 +1287,11 @@ window.Components = {
     FooterBar: function(props = {}) { return FooterBar.renderFunction(props); },
     SceneProgressText: function(props = {}) { return SceneProgressText.renderFunction(props); },
     StatusPip: function(props = {}) { return StatusPip.renderFunction(props); },
-    OrderStatusScreen: function(props = {}) { return OrderStatusScreen.renderFunction(props); }
+    OrderStatusScreen: function(props = {}) { return OrderStatusScreen.renderFunction(props); },
+    // Quiz Components
+    QuizRail: function(props = {}) { return QuizRail.renderFunction(props); },
+    OptionButton: function(props = {}) { return OptionButton.renderFunction(props); },
+    FeedbackCard: function(props = {}) { return FeedbackCard.renderFunction(props); }
 };
 
 // Header Component

@@ -126,54 +126,7 @@ class WholePartsState {
                 canvasCaption: null,
                 footerText: "Tap ▶ to see their full order!"
             },
-            // State 8: Start assembly (all quarters available, canvas dim)
-            {
-                sprite: 'cookie_man',
-                speech: "Let's see whether all the parts together make the whole pizza again.",
-                showToolPanel: true,
-                toolMode: 'parts',
-                toolRailHeader: "Parts of the pizza.",
-                cut: 'cross',
-                showPartLabels: true,
-                dimCanvas: true,
-                availableParts: ['qTR','qTL','qBL','qBR'],
-                placedParts: [],
-                canvasCaption: null,
-                footerText: "Tap each part in the rail to place it.",
-                foodType: 'pizza'
-            },
-            // State 9: Progressively placing (example: top-right placed)
-            {
-                sprite: 'cookie_man',
-                speech: "Drag or tap a part from the rail to join it back.",
-                showToolPanel: true,
-                toolMode: 'parts',
-                toolRailHeader: "Parts of the pizza.",
-                cut: 'cross',
-                showPartLabels: true,
-                dimCanvas: true,
-                availableParts: ['qTL','qBL','qBR'],
-                placedParts: ['qTR'],
-                canvasCaption: null,
-                footerText: "Great! Place the remaining parts.",
-                foodType: 'pizza'
-            },
-            // State 10: Success — whole reassembled
-            {
-                sprite: 'cookie_man',
-                speech: "Yay! All the {parts} together make the {whole} again.",
-                showToolPanel: false,
-                toolMode: null,
-                cut: false,
-                showPartLabels: false,
-                dimCanvas: false,
-                availableParts: [],
-                placedParts: ['qTR','qTL','qBL','qBR'],
-                canvasCaption: "All the parts together make the whole again.",
-                footerText: "Tap ▶ to move ahead in the story!",
-                foodType: 'pizza'
-            },
-            // State 11: Order status screen with completion pips
+            // State 8: Order status screen with completion pips
             {
                 sprite: null,
                 speech: null,
@@ -195,7 +148,7 @@ class WholePartsState {
                     { foodLabel: "Cookie", showSprite: false, status: "pending" }
                 ]
             },
-            // State 12: Pizza intro (pizza_girl)
+            // State 9: Pizza intro (pizza_girl)
             {
                 sprite: 'pizza_girl',
                 speech: "I'm so hungry!\nThis pizza looks delicious. Let's eat it.\n\nCut the pizza into pieces!",
@@ -211,7 +164,7 @@ class WholePartsState {
                 footerText: "Tap the slicer 🪄, then tap the pizza.",
                 foodType: 'pizza'
             },
-            // State 13: Boy notices parts (cheesecake_boy)
+            // State 10: Boy notices parts (cheesecake_boy)
             {
                 sprite: 'cheesecake_boy',
                 speech: "Wait, the {whole} pizza is cut into different {parts}; How many parts is this Dee Tee?",
@@ -227,7 +180,7 @@ class WholePartsState {
                 footerText: "Tap ▶ to see what Dee Tee says.",
                 foodType: 'pizza'
             },
-            // State 14: Counting instruction (cookie_man)
+            // State 11: Counting instruction (cookie_man)
             {
                 sprite: 'cookie_man',
                 speech: "Let's check, Jax!\n\nCount the number of {parts} the {whole} pizza is cut into.",
@@ -244,7 +197,7 @@ class WholePartsState {
                 foodType: 'pizza',
                 interactiveMode: 'counting'
             },
-            // State 15: Confirmation (cookie_man)
+            // State 12: Confirmation (cookie_man)
             {
                 sprite: 'cookie_man',
                 speech: "Yay! Good job!\n\nYes, this {whole} pizza is cut into 4 {parts}.",
@@ -260,7 +213,7 @@ class WholePartsState {
                 footerText: "Tap ▶ and let's keep following them!",
                 foodType: 'pizza'
             },
-            // State 16: Follow-up question (pizza_girl)
+            // State 13: Follow-up question (pizza_girl)
             {
                 sprite: 'pizza_girl',
                 speech: "If we put all the 4 {parts} back, do we get the {whole} again, Dee Tee?",
@@ -275,6 +228,138 @@ class WholePartsState {
                 canvasCaption: null,
                 footerText: "Tap ▶ know what Dee Tee says ?",
                 foodType: 'pizza'
+            },
+            // State 14: Start assembly (all quarters available, canvas dim)
+            {
+                sprite: 'cookie_man',
+                speech: "Let's see whether all the parts together make the whole pizza again.",
+                showToolPanel: true,
+                toolMode: 'parts',
+                toolRailHeader: "Parts of the pizza.",
+                cut: 'cross',
+                showPartLabels: true,
+                dimCanvas: true,
+                availableParts: ['qTR','qTL','qBL','qBR'],
+                placedParts: [],
+                canvasCaption: null,
+                footerText: "Tap each part in the rail to place it.",
+                foodType: 'pizza'
+            },
+            // State 15: Progressively placing (example: top-right placed)
+            {
+                sprite: 'cookie_man',
+                speech: "Drag or tap a part from the rail to join it back.",
+                showToolPanel: true,
+                toolMode: 'parts',
+                toolRailHeader: "Parts of the pizza.",
+                cut: 'cross',
+                showPartLabels: true,
+                dimCanvas: true,
+                availableParts: ['qTL','qBL','qBR'],
+                placedParts: ['qTR'],
+                canvasCaption: null,
+                footerText: "Great! Place the remaining parts.",
+                foodType: 'pizza'
+            },
+            // State 16: Success — whole reassembled
+            {
+                sprite: 'cookie_man',
+                speech: "Yay! All the {parts} together make the {whole} again.",
+                showToolPanel: false,
+                toolMode: null,
+                cut: false,
+                showPartLabels: false,
+                dimCanvas: false,
+                availableParts: [],
+                placedParts: ['qTR','qTL','qBL','qBR'],
+                canvasCaption: "All the parts together make the whole again.",
+                footerText: "Tap ▶ to move ahead in the story!",
+                foodType: 'pizza'
+            },
+            // State 17: Order overview after pizza completion
+            {
+                sprite: null,
+                speech: null,
+                showToolPanel: false,
+                toolMode: null,
+                cut: false,
+                showPartLabels: false,
+                dimCanvas: false,
+                availableParts: [],
+                placedParts: [],
+                toolRailHeader: null,
+                canvasCaption: null,
+                footerText: "Tap ▶ to check our understanding with cookies.",
+                showOrderStatus: true,
+                headerTitle: "Here's what they ordered!",
+                tiles: [
+                    { foodLabel: "Cheesecake", showSprite: false, status: "done" },
+                    { foodLabel: "Pizza", showSprite: false, status: "done" },
+                    { foodLabel: "Cookie", showSprite: false, status: "pending" }
+                ]
+            },
+            // CQ-01: Cookie Quiz Intro / neutral
+            {
+                sprite: 'cookie_man',
+                speech: "Time for a quick quiz!\n\nLook at the cookie — is it a whole or just a part?",
+                showToolPanel: true,
+                toolMode: 'quiz',
+                cut: false,
+                showPartLabels: false,
+                dimCanvas: false,
+                availableParts: [],
+                placedParts: [],
+                toolRailHeader: null,
+                canvasCaption: null,
+                footerText: "Tap the correct answer.",
+                questionText: "Look at the cookie — is it a whole or just a part?",
+                options: [{key:'whole',label:'Whole'},{key:'part',label:'Part'}],
+                correctOptionKey: 'part',
+                selectedOptionKey: null,
+                feedbackVariant: 'none',
+                feedbackText: null
+            },
+            // CQ-02: Wrong selected ("Whole")
+            {
+                sprite: 'cookie_man',
+                speech: "Look at the cookie — is it a whole or just a part?",
+                showToolPanel: true,
+                toolMode: 'quiz',
+                cut: false,
+                showPartLabels: false,
+                dimCanvas: false,
+                availableParts: [],
+                placedParts: [],
+                toolRailHeader: null,
+                canvasCaption: null,
+                footerText: "Tap the correct answer.",
+                questionText: "Look at the cookie — is it a whole or just a part?",
+                options: [{key:'whole',label:'Whole'},{key:'part',label:'Part'}],
+                correctOptionKey: 'part',
+                selectedOptionKey: 'whole',
+                feedbackVariant: 'wrong',
+                feedbackText: "Look closely — that's just a piece, not the whole cookie. Try again!"
+            },
+            // CQ-03: Correct selected ("Part")
+            {
+                sprite: 'cookie_man',
+                speech: "Look at the cookie — is it a whole or just a part?",
+                showToolPanel: true,
+                toolMode: 'quiz',
+                cut: false,
+                showPartLabels: false,
+                dimCanvas: false,
+                availableParts: [],
+                placedParts: [],
+                toolRailHeader: null,
+                canvasCaption: null,
+                footerText: "Tap ▶ to see the next question.",
+                questionText: "Look at the cookie — is it a whole or just a part?",
+                options: [{key:'whole',label:'Whole'},{key:'part',label:'Part'}],
+                correctOptionKey: 'part',
+                selectedOptionKey: 'part',
+                feedbackVariant: 'correct',
+                feedbackText: "That's correct — it's just a piece of cookie. So, it's a part of a whole."
             }
         ];
         
@@ -304,10 +389,6 @@ class WholePartsState {
             this.currentStateIndex = index;
             this.notifyListeners();
         }
-    }
-    
-    canGoNext() {
-        return this.currentStateIndex < this.states.length - 1;
     }
     
     canGoPrev() {
@@ -372,6 +453,45 @@ class WholePartsState {
             
             this.notifyListeners();
         }
+    }
+    
+    // Handle quiz option selection
+    selectQuizOption(optionKey) {
+        const currentState = this.getCurrentState();
+        if (currentState.toolMode !== 'quiz') return;
+        
+        // Update current state with selected option
+        const updatedState = {
+            ...currentState,
+            selectedOptionKey: optionKey
+        };
+        
+        // Determine feedback based on correctness
+        if (optionKey === currentState.correctOptionKey) {
+            updatedState.feedbackVariant = 'correct';
+            updatedState.feedbackText = "That's correct — it's just a piece of cookie. So, it's a part of a whole.";
+            updatedState.footerText = "Tap ▶ to see the next question.";
+        } else {
+            updatedState.feedbackVariant = 'wrong';
+            updatedState.feedbackText = "Look closely — that's just a piece, not the whole cookie. Try again!";
+            updatedState.footerText = "Tap the correct answer.";
+        }
+        
+        // Update the current state
+        this.states[this.currentStateIndex] = updatedState;
+        this.notifyListeners();
+    }
+    
+    // Override canGoNext for quiz states
+    canGoNext() {
+        const currentState = this.getCurrentState();
+        
+        // For quiz states, only allow next if correct answer is selected
+        if (currentState.toolMode === 'quiz') {
+            return currentState.selectedOptionKey === currentState.correctOptionKey;
+        }
+        
+        return this.currentStateIndex < this.states.length - 1;
     }
 }
 
