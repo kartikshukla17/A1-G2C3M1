@@ -118,7 +118,7 @@ class InteractiveElementsManager {
     
     // Pointer Event Handlers
     handlePointerDown(event) {
-        const element = event.target.closest('[data-draggable]');
+        const element = event.target && event.target.closest ? event.target.closest('[data-draggable]') : null;
         if (!element) return;
         
         event.preventDefault();
@@ -623,7 +623,7 @@ class InteractiveElementsManager {
     // Touch Event Handlers
     handleTouchStart(event) {
         // Prevent default to avoid conflicts with pointer events
-        if (event.target.closest('[data-draggable], [data-sliceable], [data-countable]')) {
+        if (event.target && event.target.closest && event.target.closest('[data-draggable], [data-sliceable], [data-countable]')) {
             event.preventDefault();
         }
     }

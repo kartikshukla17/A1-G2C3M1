@@ -32,13 +32,13 @@ class MiniReact {
         
         // Prevent default touch behaviors that interfere with interactions
         document.addEventListener('touchstart', (e) => {
-            if (e.target.closest('.interactive')) {
+            if (e.target && e.target.closest && e.target.closest('.interactive')) {
                 e.preventDefault();
             }
         }, { passive: false });
         
         document.addEventListener('touchmove', (e) => {
-            if (e.target.closest('.draggable')) {
+            if (e.target && e.target.closest && e.target.closest('.draggable')) {
                 e.preventDefault();
             }
         }, { passive: false });

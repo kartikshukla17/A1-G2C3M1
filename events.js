@@ -48,14 +48,14 @@ class EventManager {
         
         // Handle context menu
         document.addEventListener('contextmenu', (e) => {
-            if (e.target.closest('.interactive-element')) {
+            if (e.target && e.target.closest && e.target.closest('.interactive-element')) {
                 e.preventDefault();
             }
         });
         
         // Handle selection
         document.addEventListener('selectstart', (e) => {
-            if (e.target.closest('.interactive-element')) {
+            if (e.target && e.target.closest && e.target.closest('.interactive-element')) {
                 e.preventDefault();
             }
         });
