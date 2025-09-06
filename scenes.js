@@ -23,6 +23,39 @@ class SceneImplementations {
         };
     }
     
+    // Helper function to generate consistent navigation controls
+    generateSceneNavigation(sceneId, isComplete = false) {
+        const getText = (key) => {
+            return this.appData[this.currentLanguage]?.['standard-ui']?.[key] || key;
+        };
+        
+        const progress = window.sceneSystem ? window.sceneSystem.getProgress() : { currentScene: 1, totalScenes: 8 };
+        
+        return `
+            <div class="scene-footer">
+                <div class="scene-footer-content">
+                    <button class="nav-button prev-button" 
+                            onclick="window.sceneSystem.navigateToPrevious()"
+                            ${!window.sceneSystem || !window.sceneSystem.canNavigatePrevious() ? 'disabled' : ''}>
+                        ← ${getText('previous') || 'Previous'}
+                    </button>
+                    
+                    <div class="scene-progress">
+                        <span class="scene-progress-text">
+                            ${getText('scene_progress') || 'Scene'} ${progress.currentScene} ${getText('of') || 'of'} ${progress.totalScenes}
+                        </span>
+                    </div>
+                    
+                    <button class="nav-button next-button" 
+                            onclick="window.sceneSystem.navigateToNext()"
+                            ${!isComplete ? 'disabled' : ''}>
+                        ${getText('next') || 'Next'} →
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+    
     // Scene 1: Introduction
     createIntroScene() {
         const { useState, useEffect } = this.miniReact;
@@ -93,11 +126,12 @@ class SceneImplementations {
                         
                         <div class="intro-actions ${isReady ? 'animate-in' : ''}">
                             <button class="btn btn-primary btn-large start-button" 
-                                    onclick="window.sceneSystem.navigateToScene('cheesecake-intro')">
+                                    onclick="window.sceneSystem.navigateToNext()">
                                 ${getText('start_button')}
                             </button>
                         </div>
                     </div>
+                    ${this.generateSceneNavigation('intro', isReady)}
                 </div>
             `;
         };
@@ -150,12 +184,13 @@ class SceneImplementations {
                                 </div>
                                 
                                 <button class="btn btn-primary" 
-                                        onclick="window.sceneSystem.navigateToScene('cheesecake-slice')">
+                                        onclick="window.sceneSystem.navigateToNext()">
                                     ${getText('ready_to_slice')}
                                 </button>
                             </div>
                         </div>
                     </div>
+                    ${this.generateSceneNavigation('cheesecake-intro', showInstructions)}
                 </div>
             `;
         };
@@ -167,24 +202,26 @@ class SceneImplementations {
         
         return () => {
             const [slices, setSlices] = useState([]);
-            const [isSlicing, setIsSlicing] = useState(false);
-            const [completedSlices, setCompletedSlices] = useState(0);
-            const targetSlices = 4;
+            const [countingMode, setCountingMode] = useState(false);
+            const [countedSlices, setCountedSlices] = useState(new Set());
+            const [currentCount, setCurrentCount] = useState(0);
+            const targetSlices = 2;
             
             useEffect(() => {
-                this.setupCheesecakeSlicing();
-            }, []);
+                if (!countingMode) {
+                    this.setupCheesecakeSlicing();
+                }
+            }, [countingMode]);
             
-            const handleSlice = (sliceData) => {
-                setSlices(prev => [...prev, sliceData]);
-                setCompletedSlices(prev => {
-                    const newCount = prev + 1;
-                    if (newCount >= targetSlices) {
+            const handleSliceComplete = (sliceData) => {
+                setSlices(prev => {
+                    const newSlices = [...prev, sliceData];
+                    if (newSlices.length >= targetSlices) {
                         setTimeout(() => {
-                            window.sceneSystem.navigateToScene('cheesecake-reassemble');
-                        }, 1000);
+                            setCountingMode(true);
+                        }, 500);
                     }
-                    return newCount;
+                    return newSlices;
                 });
                 
                 if (this.audioManager) {
@@ -192,46 +229,99 @@ class SceneImplementations {
                 }
             };
             
+            const handleSliceTap = (sliceIndex) => {
+                if (countedSlices.has(sliceIndex)) return;
+                
+                const newCountedSlices = new Set([...countedSlices, sliceIndex]);
+                setCountedSlices(newCountedSlices);
+                setCurrentCount(newCountedSlices.size);
+                
+                if (this.audioManager) {
+                    this.audioManager.playSound('count_feedback');
+                }
+                
+                // Mark scene as complete when all slices are counted
+                if (newCountedSlices.size >= targetSlices) {
+                    this.globalState.cheesecakeSlices = targetSlices;
+                    // Enable next button instead of auto-advancing
+                    window.sceneSystem.markSceneComplete('cheesecake-slice');
+                }
+            };
+            
             const getText = (key) => {
                 return this.appData[this.currentLanguage]?.['content-ui']?.[key] || key;
+            };
+            
+            const getPartLabel = (index) => {
+                const labels = this.appData[this.currentLanguage]?.['content-ui']?.cheesecake_count?.part_labels;
+                return labels?.[index + 1] || `Part ${index + 1}`;
             };
             
             return `
                 <div class="scene cheesecake-slice-scene" data-scene="cheesecake-slice">
                     <div class="scene-header">
-                        <h2 class="scene-title">${getText('slice_cheesecake_title')}</h2>
-                        <div class="slice-counter">
-                            <span>${getText('slices_made')}: ${completedSlices}/${targetSlices}</span>
+                        <h2 class="scene-title">${countingMode ? getText('count_the_slices') : getText('slice_cheesecake_title')}</h2>
+                        <div class="step-indicator">
+                            <span class="step ${!countingMode ? 'active' : 'completed'}">${getText('slice_step')}</span>
+                            <span class="step ${countingMode ? 'active' : ''}">${getText('count_step')}</span>
                         </div>
                     </div>
                     
                     <div class="scene-content">
-                        <div class="slicing-workspace">
-                            <div class="cheesecake-to-slice" id="sliceable-cheesecake" 
-                                 data-sliceable="true" 
-                                 data-slice-config='{"maxSlices": ${targetSlices}, "onSlice": "handleSlice"}'>
-                                <div class="cheesecake-base"></div>
-                                <div class="cheesecake-filling"></div>
-                                <div class="cheesecake-topping"></div>
+                        ${!countingMode ? `
+                            <div class="slicing-workspace">
+                                <div class="cheesecake-to-slice" id="sliceable-cheesecake" 
+                                     data-sliceable="true" 
+                                     data-slice-config='{"maxSlices": ${targetSlices}, "onSlice": "handleSliceComplete"}'>
+                                    <div class="cheesecake-base"></div>
+                                    <div class="cheesecake-filling"></div>
+                                    <div class="cheesecake-topping"></div>
+                                </div>
+                                
+                                <div class="slice-guides">
+                                    <div class="guide-line guide-vertical" style="left: 50%"></div>
+                                </div>
                             </div>
                             
-                            <div class="slice-guides">
-                                <div class="guide-line guide-vertical" style="left: 50%"></div>
-                                <div class="guide-line guide-horizontal" style="top: 50%"></div>
+                            <div class="slicing-instructions">
+                                <p>${getText('slice_into_equal_parts')}</p>
+                                <div class="slice-progress">
+                                    <span>${getText('slices_made')}: ${slices.length}/${targetSlices}</span>
+                                </div>
                             </div>
-                        </div>
-                        
-                        <div class="slicing-instructions">
-                            <p>${getText('slicing_instructions')}</p>
-                            <div class="slice-preview">
-                                ${Array.from({length: targetSlices}, (_, i) => `
-                                    <div class="slice-indicator ${i < completedSlices ? 'completed' : ''}">
-                                        ${i + 1}
+                        ` : `
+                            <div class="counting-workspace">
+                                <div class="cheesecake-sliced" id="cheesecake-sliced">
+                                    ${Array.from({length: targetSlices}, (_, i) => `
+                                        <div class="cheesecake-slice ${countedSlices.has(i) ? 'counted' : ''}" 
+                                             onclick="handleSliceTap(${i})">
+                                            <div class="cheesecake-base"></div>
+                                            <div class="cheesecake-filling"></div>
+                                            <div class="cheesecake-topping"></div>
+                                            <div class="part-label">${getPartLabel(i)}</div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                            
+                            <div class="counting-panel">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${(currentCount / targetSlices) * 100}%"></div>
+                                </div>
+                                <div class="count-display">
+                                    <span>${getText('parts_counted')}: ${currentCount}/${targetSlices}</span>
+                                </div>
+                                ${currentCount >= targetSlices ? `
+                                    <div class="completion-message animate-in">
+                                        <p>${getText('all_parts_counted')}</p>
                                     </div>
-                                `).join('')}
+                                ` : `
+                                    <p class="count-instruction">${getText('tap_each_slice_to_count')}</p>
+                                `}
                             </div>
-                        </div>
+                        `}
                     </div>
+                    ${this.generateSceneNavigation('cheesecake-slice', currentCount >= targetSlices)}
                 </div>
             `;
         };
@@ -244,7 +334,7 @@ class SceneImplementations {
         return () => {
             const [placedSlices, setPlacedSlices] = useState(0);
             const [isComplete, setIsComplete] = useState(false);
-            const totalSlices = 4;
+            const totalSlices = 2;
             
             useEffect(() => {
                 this.setupCheesecakeReassembly();
@@ -256,9 +346,7 @@ class SceneImplementations {
                     if (newCount >= totalSlices) {
                         setIsComplete(true);
                         this.globalState.completedScenes.add('cheesecake');
-                        setTimeout(() => {
-                            window.sceneSystem.navigateToScene('pizza-intro');
-                        }, 2000);
+                        window.sceneSystem.markSceneComplete();
                     }
                     return newCount;
                 });
@@ -309,6 +397,7 @@ class SceneImplementations {
                             ` : ''}
                         </div>
                     </div>
+                    ${this.generateSceneNavigation('cheesecake-reassemble', isComplete)}
                 </div>
             `;
         };
@@ -375,12 +464,13 @@ class SceneImplementations {
                                 </div>
                                 
                                 <button class="btn btn-primary" 
-                                        onclick="window.sceneSystem.navigateToScene('pizza-slice')">
+                                        onclick="window.sceneSystem.navigateToNext()">
                                     ${getText('start_pizza_activity')}
                                 </button>
                             </div>
                         </div>
                     </div>
+                    ${this.generateSceneNavigation('pizza-intro', showInstructions)}
                 </div>
             `;
         };
@@ -394,8 +484,9 @@ class SceneImplementations {
             const [slices, setSlices] = useState([]);
             const [selectedSlices, setSelectedSlices] = useState(new Set());
             const [countingMode, setCountingMode] = useState(false);
-            const [userCount, setUserCount] = useState(0);
-            const targetSlices = 8;
+            const [countedSlices, setCountedSlices] = useState(new Set());
+            const [currentCount, setCurrentCount] = useState(0);
+            const targetSlices = 4;
             
             useEffect(() => {
                 this.setupPizzaSlicing();
@@ -408,17 +499,22 @@ class SceneImplementations {
                 }
             };
             
-            const handleCountSubmit = () => {
-                const isCorrect = userCount === targetSlices;
-                if (isCorrect) {
-                    this.globalState.pizzaSlices = targetSlices;
-                    setTimeout(() => {
-                        window.sceneSystem.navigateToScene('pizza-reassemble');
-                    }, 1000);
-                } else {
-                    // Show feedback and allow retry
+            const handleSliceTap = (sliceId) => {
+                if (!countedSlices.has(sliceId)) {
+                    const newCountedSlices = new Set(countedSlices);
+                    newCountedSlices.add(sliceId);
+                    setCountedSlices(newCountedSlices);
+                    setCurrentCount(newCountedSlices.size);
+                    
                     if (this.audioManager) {
-                        this.audioManager.playSound('incorrect');
+                        this.audioManager.playSound('tap');
+                    }
+                    
+                    // Mark scene as complete when all slices are counted
+                    if (newCountedSlices.size === targetSlices) {
+                        this.globalState.pizzaSlices = targetSlices;
+                        // Enable next button instead of auto-advancing
+                        window.sceneSystem.markSceneComplete('pizza-slice');
                     }
                 }
             };
@@ -462,14 +558,20 @@ class SceneImplementations {
                             
                             <div class="pizza-sliced" id="sliced-pizza" 
                                  style="display: ${countingMode ? 'block' : 'none'}">
-                                ${Array.from({length: targetSlices}, (_, i) => `
-                                    <div class="pizza-slice countable-slice" 
-                                         data-countable="true"
-                                         data-slice-id="${i + 1}"
-                                         data-count-config='{"countValue": 1, "onSelect": "handleSliceSelect"}'>
-                                        <div class="slice-content slice-${i + 1}"></div>
-                                    </div>
-                                `).join('')}
+                                ${Array.from({length: targetSlices}, (_, i) => {
+                                    const sliceId = i + 1;
+                                    const isCounted = countedSlices.has(sliceId);
+                                    return `
+                                        <div class="pizza-slice countable-slice ${isCounted ? 'counted' : ''}" 
+                                             data-slice-id="${sliceId}"
+                                             onclick="handleSliceTap(${sliceId})">
+                                            <div class="slice-content slice-${sliceId}"></div>
+                                            <div class="part-label ${isCounted ? 'visible' : ''}">
+                                                Part ${sliceId}
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
                             </div>
                         </div>
                         
@@ -488,20 +590,26 @@ class SceneImplementations {
                             ` : `
                                 <div class="counting-panel">
                                     <h3>${getText('count_the_slices')}</h3>
-                                    <p>${getText('click_each_slice')}</p>
+                                    <p>${getText('tap_each_slice_to_count')}</p>
                                     <div class="count-display">
-                                        <span class="count-label">${getText('your_count')}:</span>
-                                        <span class="count-number">${userCount}</span>
+                                        <span class="count-label">${getText('parts_counted')}:</span>
+                                        <span class="count-number">${currentCount}/${targetSlices}</span>
                                     </div>
-                                    <button class="btn btn-primary" 
-                                            onclick="handleCountSubmit()"
-                                            ${userCount === 0 ? 'disabled' : ''}>
-                                        ${getText('submit_count')}
-                                    </button>
+                                    <div class="counting-progress">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: ${(currentCount / targetSlices) * 100}%"></div>
+                                        </div>
+                                        ${currentCount === targetSlices ? `
+                                            <div class="completion-message">
+                                                ${getText('all_parts_counted')}
+                                            </div>
+                                        ` : ''}
+                                    </div>
                                 </div>
                             `}
                         </div>
                     </div>
+                    ${this.generateSceneNavigation('summary', true)}
                 </div>
             `;
         };
@@ -514,7 +622,7 @@ class SceneImplementations {
         return () => {
             const [placedSlices, setPlacedSlices] = useState(0);
             const [isComplete, setIsComplete] = useState(false);
-            const totalSlices = this.globalState.pizzaSlices || 8;
+            const totalSlices = this.globalState.pizzaSlices || 4;
             
             useEffect(() => {
                 this.setupPizzaReassembly();
@@ -526,9 +634,7 @@ class SceneImplementations {
                     if (newCount >= totalSlices) {
                         setIsComplete(true);
                         this.globalState.completedScenes.add('pizza');
-                        setTimeout(() => {
-                            window.sceneSystem.navigateToScene('cookie-quiz');
-                        }, 2000);
+                        window.sceneSystem.markSceneComplete();
                     }
                     return newCount;
                 });
@@ -579,6 +685,7 @@ class SceneImplementations {
                             ` : ''}
                         </div>
                     </div>
+                    ${this.generateSceneNavigation('pizza-reassemble', isComplete)}
                 </div>
             `;
         };
@@ -594,30 +701,32 @@ class SceneImplementations {
             const [showFeedback, setShowFeedback] = useState(false);
             const [quizComplete, setQuizComplete] = useState(false);
             
+            // Get quiz data from appData
+            const quizData = this.appData[this.currentLanguage]['content-ui']['cookie_quiz'];
             const questions = [
                 {
-                    id: 1,
+                    id: 'q1',
                     type: 'multiple-choice',
-                    question: 'cookie_question_1',
-                    image: 'cookie-halves',
-                    options: ['1/2', '1/3', '1/4', '2/3'],
-                    correct: 0
+                    question: quizData.questions.q1.prompt,
+                    image: 'cookie-piece',
+                    options: ['Whole', 'Part'],
+                    correct: quizData.questions.q1.correct === 'Part' ? 1 : 0
                 },
                 {
-                    id: 2,
-                    type: 'multiple-choice',
-                    question: 'cookie_question_2',
-                    image: 'cookie-quarters',
-                    options: ['1/2', '1/3', '1/4', '3/4'],
-                    correct: 2
+                    id: 'q2',
+                    type: 'multiple-choice', 
+                    question: quizData.questions.q2.prompt,
+                    image: 'cookie-full',
+                    options: ['Whole', 'Part'],
+                    correct: quizData.questions.q2.correct === 'Part' ? 1 : 0
                 },
                 {
-                    id: 3,
-                    type: 'drag-drop',
-                    question: 'cookie_question_3',
-                    image: 'cookie-thirds',
-                    fractions: ['1/3', '2/3', '3/3'],
-                    correct: '2/3'
+                    id: 'q3',
+                    type: 'multiple-choice',
+                    question: quizData.questions.q3.prompt,
+                    image: 'cookie-piece',
+                    options: ['Whole', 'Part'],
+                    correct: quizData.questions.q3.correct === 'Part' ? 1 : 0
                 }
             ];
             
@@ -646,6 +755,29 @@ class SceneImplementations {
                 }, 2000);
             };
             
+            const renderCookieImage = (imageType) => {
+                switch(imageType) {
+                    case 'cookie-piece':
+                        return `<div class="cookie-visual piece">
+                                   <div class="cookie-crumb"></div>
+                                   <div class="cookie-crumb"></div>
+                                   <div class="cookie-crumb"></div>
+                               </div>`;
+                    case 'cookie-full':
+                        return `<div class="cookie-visual whole">
+                                   <div class="cookie-base"></div>
+                                   <div class="cookie-chips"></div>
+                               </div>`;
+                    default:
+                        return `<div class="cookie-visual ${imageType}"></div>`;
+                }
+            };
+            
+            const getFeedbackMessage = (isCorrect, questionId) => {
+                const feedbackKey = isCorrect ? 'feedback_correct' : 'feedback_wrong';
+                return quizData.questions[questionId][feedbackKey] || (isCorrect ? 'Correct!' : 'Try again!');
+            };
+            
             const getText = (key) => {
                 return this.appData[this.currentLanguage]?.['content-ui']?.[key] || key;
             };
@@ -665,69 +797,68 @@ class SceneImplementations {
                     </div>
                     
                     <div class="scene-content">
-                        <div class="quiz-workspace">
-                            <div class="question-area">
-                                <div class="question-image">
-                                    <div class="cookie-visual ${question.image}"></div>
-                                </div>
-                                
-                                <div class="question-text">
-                                    <h3>${getText(question.question)}</h3>
+                        <div class="cookie-quiz-layout">
+                            <!-- Left Panel: Character -->
+                            <div class="quiz-left-panel">
+                                <div class="character-sprite cookie-man"></div>
+                                <div class="speech-bubble">
+                                    <p>${getText(question.question)}</p>
                                 </div>
                             </div>
                             
-                            <div class="answer-area">
-                                ${question.type === 'multiple-choice' ? `
-                                    <div class="answer-options">
-                                        ${question.options.map((option, index) => `
-                                            <button class="answer-option" 
-                                                    onclick="handleAnswer(${index})"
-                                                    ${showFeedback ? 'disabled' : ''}>
-                                                ${option}
-                                            </button>
-                                        `).join('')}
+                            <!-- Middle Panel: Cookie Image -->
+                            <div class="quiz-middle-panel">
+                                <div class="cookie-display">
+                                    <h3>Cookie</h3>
+                                    <div class="cookie-graphic">
+                                        ${renderCookieImage(question.image)}
                                     </div>
-                                ` : `
-                                    <div class="drag-drop-area">
-                                        <div class="fraction-options">
-                                            ${question.fractions.map((fraction, index) => `
-                                                <div class="fraction-option draggable" 
-                                                     data-draggable="true"
-                                                     data-fraction="${fraction}">
-                                                    ${fraction}
-                                                </div>
-                                            `).join('')}
-                                        </div>
-                                        <div class="drop-target" 
-                                             data-dropzone="true"
-                                             data-drop-config='{"accepts": ["fraction"]}'>
-                                            ${getText('drop_answer_here')}
-                                        </div>
-                                    </div>
-                                `}
+                                </div>
+                            </div>
+                            
+                            <!-- Right Panel: Question & Options -->
+                            <div class="quiz-right-panel">
+                                <div class="quiz-question">
+                                    <p>${getText(question.question)}</p>
+                                </div>
+                                
+                                <div class="quiz-options">
+                                    ${question.options.map((option, index) => `
+                                        <button 
+                                            class="option-button ${answers.find(a => a.questionId === question.id)?.selectedIndex === index ? 'selected' : ''}"
+                                            onclick="handleAnswer(${index})"
+                                            ${showFeedback ? 'disabled' : ''}>
+                                            ${option}
+                                        </button>
+                                    `).join('')}
+                                </div>
                             </div>
                         </div>
                         
                         ${showFeedback ? `
-                            <div class="feedback-panel animate-in">
-                                <div class="feedback-content ${answers[answers.length - 1]?.correct ? 'correct' : 'incorrect'}">
-                                    <div class="feedback-icon">
-                                        ${answers[answers.length - 1]?.correct ? '✓' : '✗'}
-                                    </div>
-                                    <div class="feedback-text">
-                                        ${getText(answers[answers.length - 1]?.correct ? 'correct_answer' : 'incorrect_answer')}
-                                    </div>
+                            <div class="quiz-feedback animate-in">
+                                <div class="feedback-icon ${answers[answers.length - 1]?.correct ? 'correct' : 'wrong'}">
+                                    ${answers[answers.length - 1]?.correct ? '✓' : '✗'}
+                                </div>
+                                <div class="feedback-text">
+                                    ${getFeedbackMessage(answers[answers.length - 1]?.correct, question.id)}
                                 </div>
                             </div>
                         ` : ''}
                         
                         ${quizComplete ? `
-                            <div class="completion-message animate-in">
-                                <h3>${getText('quiz_complete')}</h3>
-                                <p>${getText('great_learning')}</p>
+                            <div class="quiz-complete">
+                                <div class="completion-message">
+                                    <h3>${getText('quiz_complete')}</h3>
+                                    <p>${getText('great_learning')}</p>
+                                    <button onclick="window.sceneSystem.navigateToNext()" class="next-button">
+                                        Continue to Summary
+                                    </button>
+                                </div>
                             </div>
                         ` : ''}
                     </div>
+                    ${this.generateSceneNavigation('cookie-quiz', quizComplete)}
                 </div>
             `;
         };
@@ -854,76 +985,87 @@ class SceneImplementations {
     }
     
     // Setup Methods
-    setupCheesecakeSlicing() {
-        const cheesecake = document.getElementById('sliceable-cheesecake');
-        if (cheesecake && this.interactiveManager) {
-            this.interactiveManager.makeSliceable(cheesecake, {
-                maxSlices: 4,
-                sliceDirection: 'both',
-                onSlice: (element, sliceData) => {
-                    // Handle slice completion
-                }
+    // Generic cutting helper function
+    setupGenericSlicing(elementId, config) {
+        const element = document.getElementById(elementId);
+        if (element && this.interactiveManager) {
+            this.interactiveManager.makeSliceable(element, {
+                maxSlices: config.maxSlices,
+                sliceDirection: config.sliceDirection,
+                onSlice: config.onSlice || ((element, sliceData) => {
+                    // Default slice handling
+                })
             });
+        }
+    }
+    
+    setupCheesecakeSlicing() {
+        this.setupGenericSlicing('sliceable-cheesecake', {
+            maxSlices: 2,
+            sliceDirection: 'horizontal',
+            onSlice: (element, sliceData) => {
+                // Handle cheesecake slice completion
+            }
+        });
+    }
+    
+    // Generic reassembly helper function
+    setupGenericReassembly(sliceSelector, dropZoneSelector, config = {}) {
+        const slices = document.querySelectorAll(sliceSelector);
+        const dropZone = document.querySelector(dropZoneSelector);
+        
+        if (this.interactiveManager) {
+            slices.forEach(slice => {
+                this.interactiveManager.makeDraggable(slice, {
+                    returnToOrigin: config.returnToOrigin || false,
+                    onDragEnd: config.onDragEnd || (() => {
+                        // Default drag end handling
+                    })
+                });
+            });
+            
+            if (dropZone) {
+                this.interactiveManager.createDropZone(dropZone, {
+                    accepts: config.accepts || ['slice'],
+                    snapToCenter: config.snapToCenter !== false,
+                    onDrop: config.onDrop || (() => {
+                        // Default drop handling
+                    })
+                });
+            }
         }
     }
     
     setupCheesecakeReassembly() {
-        const slices = document.querySelectorAll('.draggable-slice');
-        const dropZone = document.querySelector('.assembly-base');
-        
-        if (this.interactiveManager) {
-            slices.forEach(slice => {
-                this.interactiveManager.makeDraggable(slice, {
-                    returnToOrigin: false,
-                    onDragEnd: () => {
-                        // Handle slice placement
-                    }
-                });
-            });
-            
-            if (dropZone) {
-                this.interactiveManager.createDropZone(dropZone, {
-                    accepts: ['slice'],
-                    snapToCenter: true,
-                    onDrop: () => {
-                        // Handle successful drop
-                    }
-                });
+        this.setupGenericReassembly('.draggable-slice', '.assembly-base', {
+            onDragEnd: () => {
+                // Handle cheesecake slice placement
+            },
+            onDrop: () => {
+                // Handle successful cheesecake drop
             }
-        }
+        });
     }
     
     setupPizzaSlicing() {
-        const pizza = document.getElementById('sliceable-pizza');
-        if (pizza && this.interactiveManager) {
-            this.interactiveManager.makeSliceable(pizza, {
-                maxSlices: 8,
-                sliceDirection: 'radial',
-                onSlice: (element, sliceData) => {
-                    // Handle pizza slice
-                }
-            });
-        }
+        this.setupGenericSlicing('sliceable-pizza', {
+            maxSlices: 4,
+            sliceDirection: 'cross',
+            onSlice: (element, sliceData) => {
+                // Handle pizza slice completion
+            }
+        });
     }
     
     setupPizzaReassembly() {
-        const slices = document.querySelectorAll('.pizza-slice');
-        const dropZone = document.querySelector('.pizza-assembly-area .assembly-base');
-        
-        if (this.interactiveManager) {
-            slices.forEach(slice => {
-                this.interactiveManager.makeDraggable(slice, {
-                    returnToOrigin: false
-                });
-            });
-            
-            if (dropZone) {
-                this.interactiveManager.createDropZone(dropZone, {
-                    accepts: ['slice'],
-                    snapToCenter: true
-                });
+        this.setupGenericReassembly('.pizza-slice', '.pizza-assembly-area .assembly-base', {
+            onDragEnd: () => {
+                // Handle pizza slice placement
+            },
+            onDrop: () => {
+                // Handle successful pizza drop
             }
-        }
+        });
     }
     
     // Utility Methods

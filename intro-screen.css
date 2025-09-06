@@ -1,0 +1,294 @@
+/**
+ * Intro Screen Styles - Standalone Component
+ * Independent from main screen component styling
+ */
+
+/* Intro Screen Container */
+.intro-screen {
+    background: #000000;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    animation: introScreenMount 120ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* Header Section */
+.intro-header {
+    height: 20%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: headerFadeIn 120ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    opacity: 0;
+    animation-delay: 0ms;
+}
+
+.intro-title {
+    font-size: clamp(48px, 4vw, 64px);
+    line-height: 1.1;
+    letter-spacing: 0;
+    color: #FFFFFF;
+    font-weight: 600;
+    margin: 0;
+    text-align: center;
+}
+
+/* Hero Section - Two Column Layout */
+.intro-hero {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 0 5%;
+    align-items: center;
+    position: relative;
+    gap: 2rem;
+    min-height: 0;
+}
+
+/* Left Column - Scene Window */
+.intro-scene-window {
+    width: 80%;
+    aspect-ratio: 1;
+    margin: 0 auto;
+    background: transparent;
+    border: 6px solid #F7A338;
+    border-radius: 40px;
+    box-sizing: border-box;
+    display: block;
+    position: relative;
+    animation: sceneWindowSlideIn 180ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    opacity: 0;
+    transform: translateX(-12px);
+    animation-delay: 120ms;
+}
+
+/* Right Column - Text and Button */
+.intro-copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    padding: 2rem;
+    text-align: center;
+    animation: introCopyFadeUp 180ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    opacity: 1;
+    transform: translateY(0);
+    animation-delay: 0ms;
+}
+
+.intro-text {
+    font-size: clamp(32px, 3vw, 42px);
+    line-height: 1.3;
+    color: #FFFFFF;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 3rem;
+    max-width: 100%;
+}
+
+.intro-start-button {
+    width: 200px;
+    height: 80px;
+    background: linear-gradient(to bottom, #5B3C1E, #3A2A18);
+    border: none;
+    border-radius: 28px;
+    color: #FFFFFF;
+    font-size: clamp(28px, 2.5vw, 36px);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    animation: startButtonScaleIn 120ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    opacity: 1;
+    transform: scale(1);
+    animation-delay: 0ms;
+}
+
+.intro-start-button:hover,
+.intro-start-button:focus {
+    background: linear-gradient(to bottom, #6A4A26, #3A2A18);
+    outline: 2px solid #F7A338;
+    outline-offset: 2px;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.intro-start-button:active {
+    background: linear-gradient(to bottom, #2B1F12, #2B1F12);
+    transform: scale(0.98);
+}
+
+.intro-start-button:disabled {
+    background: #4A4A4A;
+    color: #BBBBBB;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* Animations */
+@keyframes introScreenMount {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes headerFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes sceneWindowSlideIn {
+    from { 
+        opacity: 0;
+        transform: translateX(-12px);
+    }
+    to { 
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes introCopyFadeUp {
+    from { 
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes startButtonScaleIn {
+    from { 
+        opacity: 0;
+        transform: scale(0.98);
+    }
+    to { 
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .intro-hero {
+        gap: max(6%, 48px);
+    }
+    
+    .intro-scene-window {
+        width: 75%;
+    }
+}
+
+@media (max-width: 768px) {
+    .intro-hero {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        padding: 0 3%;
+    }
+    
+    .intro-header {
+        height: 15%;
+    }
+    
+    .intro-title {
+        font-size: clamp(36px, 6vw, 48px);
+    }
+    
+    .intro-text {
+        font-size: clamp(24px, 4vw, 32px);
+        margin-bottom: 2rem;
+    }
+    
+    .intro-start-button {
+        width: 180px;
+        height: 70px;
+        font-size: clamp(24px, 3vw, 28px);
+        align-self: center;
+        margin: 1rem 0 0 0;
+    }
+    
+    .intro-scene-window {
+        width: 60%;
+        max-width: 300px;
+    }
+}
+
+@media (max-width: 480px) {
+    .intro-hero {
+        padding: 0 2%;
+    }
+    
+    .intro-copy {
+        padding: 1rem;
+    }
+    
+    .intro-text {
+        font-size: clamp(20px, 5vw, 28px);
+        line-height: 1.4;
+    }
+    
+    .intro-start-button {
+        width: 160px;
+        height: 60px;
+        font-size: clamp(20px, 4vw, 24px);
+    }
+}
+
+/* High DPI / Retina Display Support */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .intro-scene-window {
+        border-width: 4px;
+    }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .intro-screen,
+    .intro-header,
+    .intro-scene-window,
+    .intro-copy,
+    .intro-start-button {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
+    
+    .intro-start-button:hover {
+        transform: none;
+    }
+}
+
+/* Focus Management */
+.intro-start-button:focus-visible {
+    outline: 3px solid #F7A338;
+    outline-offset: 3px;
+}
+
+/* Print Styles */
+@media print {
+    .intro-screen {
+        position: static;
+        background: white;
+        color: black;
+    }
+    
+    .intro-title,
+    .intro-text {
+        color: black;
+    }
+    
+    .intro-scene-window {
+        border-color: black;
+    }
+}

@@ -298,68 +298,59 @@ class WholePartsState {
                     { foodLabel: "Cookie", showSprite: false, status: "pending" }
                 ]
             },
-            // CQ-01: Cookie Quiz Intro / neutral
+            // C1: Cookie Quiz Prompt (no selection yet)
             {
                 sprite: 'cookie_man',
-                speech: "Time for a quick quiz!\n\nLook at the cookie — is it a whole or just a part?",
+                speech: "Look at this cookie — is it a whole or just a part?",
                 showToolPanel: true,
                 toolMode: 'quiz',
                 cut: false,
                 showPartLabels: false,
-                dimCanvas: false,
-                availableParts: [],
-                placedParts: [],
-                toolRailHeader: null,
                 canvasCaption: null,
                 footerText: "Tap the correct answer.",
-                questionText: "Look at the cookie — is it a whole or just a part?",
-                options: [{key:'whole',label:'Whole'},{key:'part',label:'Part'}],
-                correctOptionKey: 'part',
-                selectedOptionKey: null,
-                feedbackVariant: 'none',
-                feedbackText: null
+                quiz: {
+                    image: "cookie_whole",
+                    options: ["Whole", "Part"],
+                    selection: null,
+                    evaluation: "pending",
+                    feedback: null
+                }
             },
-            // CQ-02: Wrong selected ("Whole")
+            // C2: Wrong attempt (user taps "Part")
             {
                 sprite: 'cookie_man',
-                speech: "Look at the cookie — is it a whole or just a part?",
+                speech: "Look at this cookie — is it a whole or just a part?",
                 showToolPanel: true,
                 toolMode: 'quiz',
                 cut: false,
                 showPartLabels: false,
-                dimCanvas: false,
-                availableParts: [],
-                placedParts: [],
-                toolRailHeader: null,
                 canvasCaption: null,
                 footerText: "Tap the correct answer.",
-                questionText: "Look at the cookie — is it a whole or just a part?",
-                options: [{key:'whole',label:'Whole'},{key:'part',label:'Part'}],
-                correctOptionKey: 'part',
-                selectedOptionKey: 'whole',
-                feedbackVariant: 'wrong',
-                feedbackText: "Look closely — that's just a piece, not the whole cookie. Try again!"
+                quiz: {
+                    image: "cookie_whole",
+                    options: ["Whole", "Part"],
+                    selection: "Part",
+                    evaluation: "wrong",
+                    feedback: "Look closely — it's a complete cookie, not just a piece. Try again!"
+                }
             },
-            // CQ-03: Correct selected ("Part")
+            // C3: Correct attempt (user taps "Whole")
             {
                 sprite: 'cookie_man',
-                speech: "Look at the cookie — is it a whole or just a part?",
+                speech: "Look at this cookie — is it a whole or just a part?",
                 showToolPanel: true,
                 toolMode: 'quiz',
                 cut: false,
                 showPartLabels: false,
-                dimCanvas: false,
-                availableParts: [],
-                placedParts: [],
-                toolRailHeader: null,
                 canvasCaption: null,
                 footerText: "Tap ▶ to see the next question.",
-                questionText: "Look at the cookie — is it a whole or just a part?",
-                options: [{key:'whole',label:'Whole'},{key:'part',label:'Part'}],
-                correctOptionKey: 'part',
-                selectedOptionKey: 'part',
-                feedbackVariant: 'correct',
-                feedbackText: "That's correct — it's just a piece of cookie. So, it's a part of a whole."
+                quiz: {
+                    image: "cookie_whole",
+                    options: ["Whole", "Part"],
+                    selection: "Whole",
+                    evaluation: "right",
+                    feedback: "That's correct — it's a complete cookie. So, it's a whole."
+                }
             }
         ];
         
@@ -458,22 +449,25 @@ class WholePartsState {
     // Handle quiz option selection
     selectQuizOption(optionKey) {
         const currentState = this.getCurrentState();
-        if (currentState.toolMode !== 'quiz') return;
+        if (currentState.toolMode !== 'quiz' || !currentState.quiz) return;
         
         // Update current state with selected option
         const updatedState = {
             ...currentState,
-            selectedOptionKey: optionKey
+            quiz: {
+                ...currentState.quiz,
+                selection: optionKey
+            }
         };
         
-        // Determine feedback based on correctness
-        if (optionKey === currentState.correctOptionKey) {
-            updatedState.feedbackVariant = 'correct';
-            updatedState.feedbackText = "That's correct — it's just a piece of cookie. So, it's a part of a whole.";
+        // Determine feedback based on correctness (for whole cookie, correct answer is "Whole")
+        if (optionKey === "Whole") {
+            updatedState.quiz.evaluation = "right";
+            updatedState.quiz.feedback = "That's correct — it's a complete cookie. So, it's a whole.";
             updatedState.footerText = "Tap ▶ to see the next question.";
         } else {
-            updatedState.feedbackVariant = 'wrong';
-            updatedState.feedbackText = "Look closely — that's just a piece, not the whole cookie. Try again!";
+            updatedState.quiz.evaluation = "wrong";
+            updatedState.quiz.feedback = "Look closely — it's a complete cookie, not just a piece. Try again!";
             updatedState.footerText = "Tap the correct answer.";
         }
         
@@ -487,8 +481,8 @@ class WholePartsState {
         const currentState = this.getCurrentState();
         
         // For quiz states, only allow next if correct answer is selected
-        if (currentState.toolMode === 'quiz') {
-            return currentState.selectedOptionKey === currentState.correctOptionKey;
+        if (currentState.toolMode === 'quiz' && currentState.quiz) {
+            return currentState.quiz.evaluation === "right";
         }
         
         return this.currentStateIndex < this.states.length - 1;

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80">
+  <!-- Knife Handle -->
+  <rect x="10" y="45" width="25" height="8" rx="4" fill="#8B4513" stroke="#654321" stroke-width="1"/>
+  
+  <!-- Knife Blade -->
+  <path d="M35 49 L70 49 L68 45 L37 45 Z" fill="#C0C0C0" stroke="#A0A0A0" stroke-width="1"/>
+  
+  <!-- Blade Edge -->
+  <line x1="68" y1="45" x2="70" y2="49" stroke="#808080" stroke-width="1"/>
+  
+  <!-- Handle Grip Lines -->
+  <line x1="15" y1="47" x2="15" y2="51" stroke="#654321" stroke-width="0.5"/>
+  <line x1="20" y1="47" x2="20" y2="51" stroke="#654321" stroke-width="0.5"/>
+  <line x1="25" y1="47" x2="25" y2="51" stroke="#654321" stroke-width="0.5"/>
+  <line x1="30" y1="47" x2="30" y2="51" stroke="#654321" stroke-width="0.5"/>
+  
+
+<!-- Motion Lines for Animation Effect -->
+   <path d="M45 35 Q50 30 55 35" stroke="#FFD700" stroke-width="2" fill="none" opacity="0.7"/>
+   <path d="M50 30 Q55 25 60 30" stroke="#FFD700" stroke-width="1.5" fill="none" opacity="0.5"/>
+   <path d="M55 25 Q60 20 65 25" stroke="#FFD700" stroke-width="1" fill="none" opacity="0.3"/>
+  </svg>

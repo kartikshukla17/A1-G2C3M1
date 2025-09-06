@@ -702,20 +702,10 @@ const Screen = createComponent('Screen', (props) => {
         `;
     }
     
-    if (state.showCharacters) {
-        return html`
-            <div class="screen character-screen">
-                ${CharacterSelectionScreen.renderFunction({ state, onStateChange })}
-            </div>
-        `;
-    }
+    // CharacterSelectionScreen now renders independently
     
     if (state.showOrderStatus) {
-        return html`
-            <div class="screen character-screen">
-                ${OrderStatusScreen.renderFunction({ state, onStateChange })}
-            </div>
-        `;
+        return OrderStatusScreen.renderFunction({ state, onStateChange });
     }
     
     // Default screen layout
@@ -759,26 +749,16 @@ const SceneFrame = createComponent('SceneFrame', (props) => {
         railHeader = '', 
         toolRailNote = '', 
         availableParts = [],
-        options = [],
-        selectedOptionKey,
-        correctOptionKey,
-        feedbackVariant,
-        feedbackText
+        quiz = null
     } = state;
-    
-
     
     const renderRightPanel = () => {
         if (!showToolPanel) return '';
         
-        if (toolMode === 'quiz') {
+        if (toolMode === 'quiz' && quiz) {
             return QuizRail.renderFunction({
-                options,
-                selectedOptionKey,
-                correctOptionKey,
-                feedbackVariant,
-                feedbackText,
-                onOptionClick: (optionKey) => {
+                quiz,
+                onOptionSelect: (optionKey) => {
                     if (window.wholePartsState && window.wholePartsState.selectQuizOption) {
                         window.wholePartsState.selectQuizOption(optionKey);
                     }
@@ -786,12 +766,23 @@ const SceneFrame = createComponent('SceneFrame', (props) => {
             });
         }
         
-        return ToolRail.renderFunction({ toolMode, toolRailHeader, railHeader, toolRailNote, availableParts });
+        // Tool functionality placeholder
+        if (toolMode === 'slicer') {
+            return '';
+        }
+        
+        return '';
     };
+    
+    const sceneInteriorClass = [
+        'scene-frame-interior',
+        toolMode === 'quiz' ? 'quiz-mode' : '',
+        showToolPanel ? 'with-tool-panel' : ''
+    ].filter(Boolean).join(' ');
     
     return html`
         <div class="scene-frame">
-            <div class="scene-frame-interior ${toolMode === 'quiz' ? 'quiz-mode' : ''}">
+            <div class="${sceneInteriorClass}">
                 ${CanvasArea.renderFunction({ state })}
                 ${renderRightPanel()}
             </div>
@@ -817,17 +808,18 @@ const CanvasArea = createComponent('CanvasArea', (props) => {
     
     // Quiz mode shows cookie graphic
     if (toolMode === 'quiz') {
+        const { quiz = null } = state;
+        const showWholeCookie = quiz && quiz.image === 'cookie_whole';
+        
         return html`
             <div class="${canvasClass} quiz-canvas">
                 <div class="canvas-content">
                     <div class="cookie-graphic">
-                        <h3 class="cookie-title">Cookie</h3>
                         <div class="cookie-drawing">
-                            <svg width="200" height="200" viewBox="0 0 200 200" class="cookie-svg">
-                                <circle cx="100" cy="100" r="90" fill="none" stroke="#111" stroke-width="3"/>
-                                <line x1="100" y1="10" x2="100" y2="190" stroke="#111" stroke-width="2"/>
-                                <line x1="10" y1="100" x2="190" y2="100" stroke="#111" stroke-width="2"/>
-                            </svg>
+                            <div class="food-disk cookie-disk">
+                                <div class="food-label">Cookie</div>
+                                ${showWholeCookie ? '' : '<div class="cut-line vertical"></div>'}
+                            </div>
                         </div>
                     </div>
                     ${canvasCaption ? `<div class="canvas-caption">${canvasCaption}</div>` : ''}
@@ -846,147 +838,116 @@ const CanvasArea = createComponent('CanvasArea', (props) => {
     `;
 });
 
-const ToolRail = createComponent('ToolRail', (props) => {
-    const { toolMode = 'slicer', toolRailHeader = '', railHeader = '', toolRailNote = '', availableParts = [], placedParts = [] } = props;
+// ToolRail component - placeholder for future implementation
+// const ToolRail = createComponent('ToolRail', (props) => {
+//     return '';
+// });
+
+// QuizRail component for cookie quiz
+const QuizRail = createComponent('QuizRail', (props) => {
+    const { 
+        quiz = null,
+        onOptionSelect = () => {} 
+    } = props;
     
-    const headerText = railHeader || toolRailHeader;
+    if (!quiz) return '';
     
-    if (toolMode === 'parts') {
+    const { options = [], selection = null, evaluation = 'pending', feedback = null } = quiz;
+    
+    const optionButtons = options.map(option => {
+        let buttonState = 'neutral';
+        if (selection === option) {
+            buttonState = evaluation === 'right' ? 'correct' : evaluation === 'wrong' ? 'wrong' : 'neutral';
+        }
+        
         return html`
-            <div class="tool-rail parts-mode">
-                ${headerText ? `<div class="tool-rail-header">${headerText}</div>` : ''}
-                ${toolRailNote ? `<div class="tool-rail-note">${toolRailNote}</div>` : ''}
-                <div class="parts-container">
-                    ${availableParts.map(part => `
-                        <div class="part-thumbnail-wrapper" onclick="window.wholePartsState.placePart('${part}')">
-                            ${PartThumbnail.renderFunction({ part, draggable: true })}
-                        </div>
-                    `).join('')}
-                    ${placedParts.map(part => `
-                        <div class="part-thumbnail-wrapper placed">
-                            <div class="placed-indicator">✓</div>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
+            ${renderComponent('OptionButton', {
+                key: option,
+                label: option,
+                state: buttonState,
+                onClick: () => onOptionSelect(option)
+            })}
         `;
-    }
+    }).join('');
+    
+    const showFeedback = evaluation !== 'pending' && feedback;
+    const feedbackVariant = evaluation === 'right' ? 'correct' : evaluation === 'wrong' ? 'wrong' : 'none';
     
     return html`
-        <div class="tool-rail">
-            ${headerText ? `<div class="tool-rail-header">${headerText}</div>` : ''}
-            ${toolRailNote ? `<div class="tool-rail-note">${toolRailNote}</div>` : ''}
-            <div class="tool-item">
-                <img src="assets/slicer.png" alt="Slicer Tool" class="tool-icon" />
+        <div class="quiz-rail">
+            <div class="option-stack">
+                ${optionButtons}
             </div>
+            ${showFeedback ? html`
+                ${renderComponent('FeedbackCard', {
+                    variant: feedbackVariant,
+                    text: feedback
+                })}
+            ` : ''}
         </div>
     `;
 });
 
 // OptionButton Component for Quiz
 const OptionButton = createComponent('OptionButton', (props) => {
-    const { 
-        optionKey, 
-        label, 
-        selectedOptionKey, 
-        correctOptionKey, 
-        onClick,
-        disabled = false 
-    } = props;
-    
-    const buttonRef = useRef(null);
-    const [isPressed, setIsPressed] = useState(false);
-    
-    // Determine button state
-    let buttonState = 'neutral';
-    if (selectedOptionKey === optionKey) {
-        buttonState = selectedOptionKey === correctOptionKey ? 'correct' : 'wrong';
-    }
+    const { key, label, state = 'neutral', onClick = () => {} } = props;
     
     const handleClick = () => {
-        if (!disabled && onClick) {
-            onClick(optionKey);
-        }
+        onClick(key);
     };
     
     const handleKeyDown = (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            handleClick();
+            onClick(key);
         }
     };
     
     return html`
         <button 
-            ref="${buttonRef}"
-            class="option-button option-button-${buttonState} ${isPressed ? 'pressed' : ''}"
+            class="option-button ${state}"
+            role="button"
+            aria-pressed="${state !== 'neutral'}"
             onclick="${handleClick}"
             onkeydown="${handleKeyDown}"
-            ${disabled ? 'disabled' : ''}
-            role="button"
-            aria-pressed="${selectedOptionKey === optionKey}"
             tabindex="0"
         >
-            <span class="option-button-label" style="pointer-events: none; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">
-                ${label}
-            </span>
+            ${label}
         </button>
     `;
 });
 
 // FeedbackCard Component for Quiz
 const FeedbackCard = createComponent('FeedbackCard', (props) => {
-    const { feedbackVariant, feedbackText } = props;
+    const { variant = 'none', text = '' } = props;
     
-    if (feedbackVariant === 'none' || !feedbackText) {
+    if (variant === 'none' || !text) {
         return '';
     }
     
     return html`
-        <div class="feedback-card feedback-card-${feedbackVariant}">
-            <span style="pointer-events: none; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">
-                ${feedbackText}
-            </span>
+        <div class="feedback-card ${variant}">
+            ${text}
         </div>
     `;
 });
 
-// QuizRail Component
-const QuizRail = {
-    renderFunction: (props) => {
-        const { 
-            options = [], 
-            selectedOptionKey, 
-            correctOptionKey, 
-            feedbackVariant, 
-            feedbackText,
-            onOptionClick 
-        } = props;
-
-        const optionButtons = options.map(option => 
-            OptionButton.renderFunction({
-                optionKey: option.key,
-                label: option.label,
-                selectedOptionKey,
-                correctOptionKey,
-                onClick: onOptionClick
-            })
-        ).join('');
-        
-        const feedbackCardHtml = FeedbackCard.renderFunction({ feedbackVariant, feedbackText });
-
-        return `
-            <div class="quiz-rail">
-                <div class="option-stack">
-                    ${optionButtons}
-                </div>
-                <div class="feedback-card-wrapper">
-                    ${feedbackCardHtml}
-                </div>
-            </div>
-        `;
-    }
-};
+// Export components for use in other modules
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        Button,
+        InteractiveElement,
+        FeedbackMessage,
+        NavigationControls,
+        CharacterDisplay,
+        FoodDisk,
+        StatusPip,
+        OrderStatusScreen,
+        QuizRail,
+        OptionButton,
+        FeedbackCard
+    };
+}
 
 const SpeechBubble = createComponent('SpeechBubble', (props) => {
     const { speech = '' } = props;
@@ -1031,6 +992,15 @@ const FoodDisk = createComponent('FoodDisk', (props) => {
         `).join('');
     }
     
+    // Add clickable pieces if cut
+    let clickablePieces = '';
+    if (cut && foodType === 'cheesecake') {
+        clickablePieces = `
+            <div class="clickable-piece left-piece" onclick="window.wholePartsApp.handlePieceClick(1)" style="position: absolute; left: 0; top: 0; width: 50%; height: 100%; cursor: pointer; z-index: 10;"></div>
+            <div class="clickable-piece right-piece" onclick="window.wholePartsApp.handlePieceClick(2)" style="position: absolute; right: 0; top: 0; width: 50%; height: 100%; cursor: pointer; z-index: 10;"></div>
+        `;
+    }
+    
     // Determine part labels based on food type
     let partLabelsContent = '';
     if (showPartLabels) {
@@ -1047,8 +1017,8 @@ const FoodDisk = createComponent('FoodDisk', (props) => {
             // Default cheesecake 2-part labels
             partLabelsContent = `
                 <div class="part-labels">
-                    <div class="part-label part-1">Part 1</div>
-                    <div class="part-label part-2">Part 2</div>
+                    <div class="part-label part-1 visible">Part 1</div>
+                    <div class="part-label part-2 visible">Part 2</div>
                 </div>
             `;
         }
@@ -1060,6 +1030,7 @@ const FoodDisk = createComponent('FoodDisk', (props) => {
                 <div class="food-label">${label}</div>
                 ${cutLines}
                 ${placedPartsContent}
+                ${clickablePieces}
                 ${dimCanvas ? CanvasDimmingOverlay.renderFunction({ placedParts, toolMode }) : ''}
             </div>
             ${partLabelsContent}
@@ -1121,18 +1092,24 @@ const CanvasDimmingOverlay = createComponent('CanvasDimmingOverlay', (props) => 
 
 const IntroScreen = createComponent('IntroScreen', (props) => {
     const { state = {}, onStateChange = () => {} } = props;
-    const { speech = '' } = state;
     
     return html`
-        <div class="intro-screen-content">
-            <h1 class="app-title">Whole and Part</h1>
-            <div class="intro-layout">
-                <div class="intro-canvas">
-                    <div class="canvas-placeholder"></div>
+        <div class="intro-screen">
+            <div class="intro-header">
+                <h1 class="intro-title">Whole and Part</h1>
+            </div>
+            <div class="intro-hero">
+                <div class="intro-scene-window">
+                    <!-- Empty staging area for future content -->
                 </div>
-                <div class="intro-text">
-                    <div class="intro-speech">${speech}</div>
-                    <button class="start-button" onclick="window.wholePartsState.nextState()">Start</button>
+                <div class="intro-copy">
+                    <div class="intro-text">
+                        Dee Tee, Jax and Jane are at Cheesecake center.<br>
+                        Let's find out what they ordered!
+                    </div>
+                    <button class="intro-start-button" onclick="window.wholePartsApp.state.nextState()">
+                        Start
+                    </button>
                 </div>
             </div>
         </div>
@@ -1141,34 +1118,52 @@ const IntroScreen = createComponent('IntroScreen', (props) => {
 
 const CharacterSelectionScreen = createComponent('CharacterSelectionScreen', (props) => {
     const { state = {}, onStateChange = () => {} } = props;
-    const { speech = '', footerText = '' } = state;
+    const { speech = 'Here\'s what they ordered!', footerText = 'Tap ▶ to see what Dee Tee, Jax, and Jane are up to!' } = state;
     
     return html`
-        <div class="character-screen-content">
-            <h2 class="character-title">${speech}</h2>
-            <div class="characters-container">
-                <div class="character-item">
-                    <div class="character-circle">
-                        <span class="character-label">Cheesecake</span>
+        <div class="character-screen">
+            <div class="character-header">
+                <h1 class="character-title">${speech}</h1>
+            </div>
+            
+            <div class="character-main">
+                <div class="character-choices-container">
+                    <div class="character-choice">
+                        <div class="character-food-circle">
+                            <span class="character-food-label">Cheesecake</span>
+                        </div>
+                        <div class="character-sprite-container">
+                            <img src="assets/cheesecake_boy.png" alt="Dee Tee" class="character-sprite" />
+                        </div>
                     </div>
-                    <img src="assets/cheesecake_boy.png" alt="Cheesecake Boy" class="character-sprite" />
-                </div>
-                <div class="character-item">
-                    <div class="character-circle">
-                        <span class="character-label">Pizza</span>
+                    
+                    <div class="character-choice">
+                        <div class="character-food-circle">
+                            <span class="character-food-label">Pizza</span>
+                        </div>
+                        <div class="character-sprite-container">
+                            <img src="assets/pizza_girl.png" alt="Jax" class="character-sprite" />
+                        </div>
                     </div>
-                    <img src="assets/pizza_girl.png" alt="Pizza Girl" class="character-sprite" />
-                </div>
-                <div class="character-item">
-                    <div class="character-circle">
-                        <span class="character-label">Cookie</span>
+                    
+                    <div class="character-choice">
+                        <div class="character-food-circle">
+                            <span class="character-food-label">Cookie</span>
+                        </div>
+                        <div class="character-sprite-container">
+                            <img src="assets/cookie_man.png" alt="Jane" class="character-sprite" />
+                        </div>
                     </div>
-                    <img src="assets/cookie_man.png" alt="Cookie Man" class="character-sprite" />
                 </div>
             </div>
-            <div class="character-footer">
-                <span class="footer-text">${footerText}</span>
-                <button class="nav-arrow" onclick="window.wholePartsState.nextState()">▶</button>
+            
+            <div class="character-navigation">
+                <div class="character-nav-content">
+                    <span class="character-nav-text">${footerText}</span>
+                    <button class="character-nav-button" onclick="window.wholePartsApp.state.nextState()">
+                        <span class="nav-arrow">▶</span>
+                    </button>
+                </div>
             </div>
         </div>
     `;
@@ -1192,21 +1187,31 @@ const OrderStatusScreen = createComponent('OrderStatusScreen', (props) => {
     const { headerTitle = '', tiles = [], footerText = '' } = state;
     
     return html`
-        <div class="character-screen-content">
-            <h2 class="character-title">${headerTitle}</h2>
-            <div class="characters-container">
-                ${tiles.map(tile => html`
-                    <div class="character-item">
-                        <div class="character-circle">
-                            <span class="character-label">${tile.foodLabel}</span>
-                        </div>
-                        ${StatusPip.renderFunction({ status: tile.status })}
-                    </div>
-                `).join('')}
+        <div class="character-screen">
+            <div class="character-header">
+                <h1 class="character-title">${headerTitle}</h1>
             </div>
-            <div class="character-footer">
-                <span class="footer-text">${footerText}</span>
-                <button class="nav-arrow" onclick="window.wholePartsState.nextState()">▶</button>
+            
+            <div class="character-main">
+                <div class="character-choices-container">
+                    ${tiles.map(tile => html`
+                        <div class="character-choice">
+                            <div class="character-food-circle">
+                                <span class="character-food-label">${tile.foodLabel}</span>
+                            </div>
+                            ${StatusPip.renderFunction({ status: tile.status })}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+            
+            <div class="character-navigation">
+                <div class="character-nav-content">
+                    <span class="character-nav-text">${footerText}</span>
+                    <button class="character-nav-button" onclick="window.wholePartsApp.state.nextState()">
+                        <span class="nav-arrow">▶</span>
+                    </button>
+                </div>
             </div>
         </div>
     `;
@@ -1279,7 +1284,7 @@ window.Components = {
     RightRegion: function(props = {}) { return RightRegion.renderFunction(props); },
     SceneFrame: function(props = {}) { return SceneFrame.renderFunction(props); },
     CanvasArea: function(props = {}) { return CanvasArea.renderFunction(props); },
-    ToolRail: function(props = {}) { return ToolRail.renderFunction(props); },
+    // ToolRail: function(props = {}) { return ToolRail.renderFunction(props); },
     SpeechBubble: function(props = {}) { return SpeechBubble.renderFunction(props); },
     FoodDisk: function(props = {}) { return FoodDisk.renderFunction(props); },
     PartThumbnail: function(props = {}) { return PartThumbnail.renderFunction(props); },

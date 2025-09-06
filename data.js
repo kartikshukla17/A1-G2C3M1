@@ -37,7 +37,9 @@ const appData = {
                 navigation: {
                     grade_level: "Grade 1-2",
                     interactive_learning: "Interactive Learning",
-                    keyboard_hint: "Use ← / → to navigate • Click / tap to interact"
+                    keyboard_hint: "Use ← / → to navigate • Click / tap to interact",
+                    scene_progress: "Scene",
+                    of: "of"
                 },
                 accessibility: {
                     scene_changed: "Scene changed to {sceneName}",
@@ -196,7 +198,27 @@ const appData = {
                     foodType: "pizza"
                 },
                 
-                // Scene 2 - Cheesecake Reassemble
+                // Scene 2 - Cheesecake Count
+                cheesecake_count: {
+                    title: "Let's check, Jax! Count the number of parts the whole cheesecake is cut into.",
+                    instruction: "Count the number of parts the whole cheesecake is cut into. Tap each part to count them.",
+                    feedback_initial: "Tap slices in any order to count Part 1 to Part 2.",
+                    feedback_counting: "Count: {count} (Part {count})",
+                    feedback_success: "Yay! The cheesecake is cut into 2 parts.",
+                    slice_step: "Slice",
+                    count_step: "Count",
+                    slice_into_equal_parts: "Cut the cheesecake into equal parts",
+                    count_the_slices: "Count the Slices",
+                    tap_each_slice_to_count: "Tap each slice to count them",
+                    parts_counted: "Parts counted",
+                    all_parts_counted: "Great! All parts counted!",
+                    part_labels: {
+                        1: "Part 1",
+                        2: "Part 2"
+                    }
+                },
+                
+                // Scene 3 - Cheesecake Reassemble
                 cheesecake_reassemble: {
                     title: "Do all parts make the whole again?",
                     instruction: "Drag each part to bring them together.",
@@ -223,6 +245,17 @@ const appData = {
                     feedback_initial: "Tap slices in any order to count Part 1 to Part 4.",
                     feedback_counting: "Count: {count} (Part {count})",
                     feedback_success: "Yay! The pizza is cut into 4 parts.",
+                    slice_and_count_pizza: "Slice and Count Pizza",
+                    slice_step: "Slice",
+                    count_step: "Count",
+                    slice_the_pizza: "Slice the Pizza",
+                    slice_into_equal_parts: "Cut the pizza into equal parts",
+                    target_slices: "Target slices",
+                    slices_made: "Slices made",
+                    count_the_slices: "Count the Slices",
+                    tap_each_slice_to_count: "Tap each slice to count them",
+                    parts_counted: "Parts counted",
+                    all_parts_counted: "Great! All parts counted!",
                     part_labels: {
                         1: "Part 1",
                         2: "Part 2", 

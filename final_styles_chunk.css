@@ -1,0 +1,434 @@
+/* Final chunk of styles to append */
+
+/* Character Sprite */
+.character-sprite {
+    height: var(--character-height-main, clamp(200px, 50vh, 60%));
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+}
+
+/* Character Footer Navigation */
+.character-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2rem;
+    padding: 0 2rem;
+}
+
+.footer-text {
+    color: #ECF0F1;
+    font-size: clamp(14px, 2vw, 18px);
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+.nav-arrow {
+    background: #8B4513;
+    color: #000000;
+    border: none;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(139, 69, 19, 0.3);
+}
+
+.nav-arrow:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(139, 69, 19, 0.4);
+}
+
+.highlight-whole {
+    color: #F7A338;
+    font-weight: bold;
+}
+
+.highlight-parts {
+    color: #5AA8FF;
+    font-weight: bold;
+}
+
+/* Additional highlight styles for speech */
+.speech-bubble .highlight-whole {
+    color: #F7A338;
+    font-weight: bold;
+}
+
+.speech-bubble .highlight-parts {
+    color: #5AA8FF;
+    font-weight: bold;
+}
+
+/* Scene Frame */
+.scene-frame {
+    flex: 1;
+    background: #000000;
+    border: 4px solid #F7A338;
+    border-radius: 36px;
+    overflow: hidden;
+}
+
+.scene-frame-interior {
+    display: flex;
+    height: 100%;
+    background: #000000;
+    flex-direction: column;
+    padding: 24px;
+    transition: margin-right 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.scene-frame-interior.with-tool-panel {
+    margin-right: 320px;
+}
+
+.canvas-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(20px, 3vw, 40px);
+}
+
+.canvas-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(20px, 3vw, 30px);
+}
+
+/* Food Disk */
+.food-disk-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 100%;
+    max-height: 100%;
+    overflow: hidden;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+.food-disk {
+    position: relative;
+    width: clamp(250px, 35vw, 450px);
+    height: clamp(250px, 35vw, 450px);
+    max-width: 90%;
+    max-height: 90%;
+    background: #E9E9E9;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    flex-shrink: 0;
+}
+
+.food-label {
+    font-size: clamp(24px, 4vw, 32px);
+    font-weight: bold;
+    color: #111111;
+    text-align: center;
+    pointer-events: none;
+}
+
+.cut-line {
+    position: absolute;
+    background: #222222;
+}
+
+.cut-line.vertical {
+    top: 0;
+    left: 50%;
+    width: 3px;
+    height: 100%;
+    transform: translateX(-50%);
+}
+
+.cut-line.horizontal {
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    transform: translateY(-50%);
+}
+
+.part-labels {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    transform: translateY(-50%);
+    display: flex;
+    justify-content: space-between;
+    padding: 0 clamp(-50px, -8vw, -30px);
+    pointer-events: none;
+}
+
+.part-label {
+    color: white;
+    font-size: clamp(14px, 2.2vw, 18px);
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+}
+
+.part-label::before {
+    content: '→';
+}
+
+.pizza-part-labels {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.pizza-part-label {
+    position: absolute;
+    color: white;
+    font-size: clamp(14px, 2.2vw, 18px);
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pizza-part-label::before {
+    content: '';
+    width: 0;
+    height: 0;
+    border-left: 8px solid white;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+}
+
+/* Pizza part label positioning */
+.pizza-part-label.part-1 {
+    top: 20%;
+    right: -80px;
+    transform: rotate(20deg);
+}
+
+.pizza-part-label.part-2 {
+    top: 20%;
+    left: -80px;
+    transform: rotate(160deg);
+}
+
+.pizza-part-label.part-3 {
+    bottom: 20%;
+    left: -80px;
+    transform: rotate(220deg);
+}
+
+.pizza-part-label.part-4 {
+    bottom: 20%;
+    right: -80px;
+    transform: rotate(340deg);
+}
+
+.part-label::before {
+    content: '→';
+    margin-right: 8px;
+    font-size: clamp(16px, 2.5vw, 20px);
+}
+
+.part-label.part-2::before {
+    content: '←';
+    margin-right: 0;
+    margin-left: 8px;
+    order: 2;
+}
+
+.food-disk .part-label {
+    position: absolute;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    pointer-events: none;
+}
+
+.food-disk .part-label.part-1 {
+    left: 25%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.food-disk .part-label.part-2 {
+    right: 25%;
+    top: 50%;
+    transform: translate(50%, -50%);
+}
+
+.canvas-caption {
+    color: white;
+    font-size: clamp(16px, 2.5vw, 20px);
+    font-weight: bold;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+    margin-top: clamp(15px, 2vw, 20px);
+}
+
+/* Tool Rail Styles */
+.tool-rail {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    border-left: 4px solid #F7A338;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.tool-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.slicer-tool {
+    width: 120px;
+    height: 120px;
+    background: #F1C40F;
+    border: 4px solid #F7A338;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(241, 196, 15, 0.3);
+}
+
+.slicer-tool:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(241, 196, 15, 0.5);
+    background: #F4D03F;
+}
+
+.slicer-tool:active {
+    transform: scale(0.95);
+}
+
+.slicer-icon {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.slicer-image {
+     width: 100%;
+     height: 100%;
+     object-fit: contain;
+     pointer-events: none;
+     text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+ }
+
+.tool-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(15px, 2vw, 20px);
+}
+
+.tool-icon {
+    width: clamp(120px, 15vw, 180px);
+    height: clamp(120px, 15vw, 180px);
+    object-fit: contain;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tool-icon:hover {
+    transform: scale(1.1);
+    filter: brightness(1.2);
+}
+
+/* Footer Bar */
+.footer-bar {
+    margin-top: auto;
+    border-top: 2px solid #F7A338;
+    padding-top: 20px;
+}
+
+.footer-content {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 30px;
+}
+
+.progress-text {
+    text-align: center;
+    color: white;
+    font-size: clamp(16px, 2.5vw, 20px);
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.scene-progress-text {
+    color: white;
+    font-size: clamp(16px, 2.5vw, 20px);
+    font-weight: bold;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+}
+
+/* Navigation Buttons - Updated */
+.nav-button {
+    background: #3A2A18;
+    color: #F7A338;
+    border: none;
+    border-radius: 12px;
+    width: 56px;
+    height: 56px;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.nav-button:hover:not(:disabled) {
+    background: #4A3A28;
+    transform: scale(1.05);
+}
+
+.nav-button:active:not(:disabled) {
+    transform: scale(0.95);
+}
+
+.nav-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+    .intro-layout {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        text-align: center;
+    }
+    
+    .content-column {
+        align-items: center;
+    }
+}

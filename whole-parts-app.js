@@ -107,6 +107,23 @@ class WholePartsApp {
         
         const currentState = this.state.getCurrentState();
         
+        // Check if we should render CharacterSelectionScreen independently
+        if (currentState.showCharacters) {
+            // Render CharacterSelectionScreen directly using MiniReact component system
+            const component = window.MiniReact.components.get('CharacterSelectionScreen');
+            if (component) {
+                this.container.innerHTML = component.renderFunction({
+                    state: currentState,
+                    onStateChange: (newState) => {
+                        // Handle state changes if needed
+                    }
+                });
+                return;
+            } else {
+                console.error('CharacterSelectionScreen component not found');
+            }
+        }
+        
         // Update canvas area class based on tool panel visibility
         const canvasAreaClass = currentState.showToolPanel ? 'canvas-area with-tool-panel' : 'canvas-area';
         
@@ -171,6 +188,28 @@ class WholePartsApp {
             });
         });
     }
+    
+    // Handle piece clicking for showing part labels
+    handlePieceClick(pieceNumber) {
+        const currentState = this.state.getCurrentState();
+        
+        // Only handle piece clicks when the food is cut
+        if (currentState.cut) {
+            // Find the part label element and toggle its visibility
+            const partLabel = this.container.querySelector(`.part-label.part-${pieceNumber}`);
+            if (partLabel) {
+                partLabel.classList.toggle('visible');
+                
+                // Add a brief animation effect
+                partLabel.style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    partLabel.style.transform = '';
+                }, 200);
+            }
+        }
+    }
+    
+
     
     // Public methods for external control
     goToState(index) {

@@ -205,6 +205,24 @@ class SceneSystem {
             const [slicerCutting, setSlicerCutting] = useState(false);
             const [cheesecakeCutting, setCheesecakeCutting] = useState(false);
             const [partsSplitting, setPartsSplitting] = useState(false);
+            const [animationStarted, setAnimationStarted] = useState(false);
+            const [showPartLabels, setShowPartLabels] = useState({ part1: false, part2: false });
+            
+            // Trigger slicer panel animation when scene is ready
+            useEffect(() => {
+                const handleSceneReady = (event) => {
+                    // Check if this is the cheesecake_cut scene (index 2)
+                    if (event.detail.sceneIndex === 2) {
+                        setAnimationStarted(true);
+                    }
+                };
+                
+                document.addEventListener('sceneReady', handleSceneReady);
+                
+                return () => {
+                    document.removeEventListener('sceneReady', handleSceneReady);
+                };
+            }, []);
             
             const handleSlicerClick = () => {
                 setSlicerActive(true);
@@ -241,6 +259,18 @@ class SceneSystem {
                 }
             };
             
+            const handlePartClick = (partNumber, event) => {
+                // Only allow part clicks after cheesecake is sliced
+                if (cheesecakeSliced) {
+                    event.stopPropagation(); // Prevent triggering parent click
+                    setShowPartLabels(prev => ({
+                        ...prev,
+                        [`part${partNumber}`]: !prev[`part${partNumber}`]
+                    }));
+                    this.recordInteraction('cheesecake_cut', `part_${partNumber}_clicked`);
+                }
+            };
+            
             return html`
                 <div class="scene-cheesecake-cut">
                     ${renderComponent('CharacterDisplay', {
@@ -255,7 +285,7 @@ class SceneSystem {
                             ${appData.getContentUI('cheesecake_cut.instruction')}
                         </p>
                         
-                        <div class="tools-area">
+                        <div class="tools-area ${animationStarted ? 'slide-in' : ''}">
                             ${renderComponent('InteractiveElement', {
                                 onClick: handleSlicerClick,
                                 className: `slicer-tool ${slicerActive ? 'active' : ''} ${slicerCutting ? 'cutting' : ''}`,
@@ -267,7 +297,7 @@ class SceneSystem {
                             })}
                         </div>
                         
-                        <div class="food-area">
+                        <div class="food-area ${animationStarted ? 'shrink-for-slicer' : ''}">
                             ${renderComponent('InteractiveElement', {
                                 onClick: handleCheesecakeClick,
                                 className: `food-item cheesecake ${slicerActive ? 'sliceable' : ''} ${cheesecakeSliced ? 'sliced' : ''} ${cheesecakeCutting ? 'cutting' : ''}`,
@@ -277,8 +307,28 @@ class SceneSystem {
                                         🍰
                                     </div>
                                     <div class="cheesecake-parts ${cheesecakeSliced ? '' : 'hidden'} ${partsSplitting ? 'splitting' : ''}">
-                                        <div class="part part-1">🍰</div>
-                                        <div class="part part-2">🍰</div>
+                                        ${renderComponent('InteractiveElement', {
+                                            onClick: (e) => handlePartClick(1, e),
+                                            className: 'part part-1',
+                                            ariaLabel: 'Part 1 of cheesecake',
+                                            children: html`
+                                                🍰
+                                                <div class="part-label ${showPartLabels.part1 ? 'visible' : 'hidden'}">
+                                                    Part 1
+                                                </div>
+                                            `
+                                        })}
+                                        ${renderComponent('InteractiveElement', {
+                                            onClick: (e) => handlePartClick(2, e),
+                                            className: 'part part-2',
+                                            ariaLabel: 'Part 2 of cheesecake',
+                                            children: html`
+                                                🍰
+                                                <div class="part-label ${showPartLabels.part2 ? 'visible' : 'hidden'}">
+                                                    Part 2
+                                                </div>
+                                            `
+                                        })}
                                     </div>
                                 `
                             })}
@@ -400,8 +450,203 @@ class SceneSystem {
     
     registerCookieQuizScene() {
         createComponent('CookieQuizScene', (props) => {
-            // Quiz with 3 questions about whole vs part
-            return html`<div>Cookie Quiz Scene</div>`;
+            const [currentQuestion, setCurrentQuestion] = useState(0);
+            const [selectedAnswer, setSelectedAnswer] = useState(null);
+            const [showFeedback, setShowFeedback] = useState(false);
+            const [isCorrect, setIsCorrect] = useState(false);
+            const [canProceed, setCanProceed] = useState(false);
+            
+            // Get quiz data from appData
+            const quizData = this.appData[this.currentLanguage]['content-ui']['cookie_quiz'];
+            const questions = [
+                {
+                    id: 'q1',
+                    prompt: quizData.questions.q1.prompt,
+                    type: quizData.questions.q1.type, // 'piece'
+                    correct: quizData.questions.q1.correct, // 'Part'
+                    feedback_wrong: quizData.questions.q1.feedback_wrong,
+                    feedback_correct: quizData.questions.q1.feedback_correct
+                },
+                {
+                    id: 'q2', 
+                    prompt: quizData.questions.q2.prompt,
+                    type: quizData.questions.q2.type, // 'full'
+                    correct: quizData.questions.q2.correct, // 'Whole'
+                    feedback_wrong: quizData.questions.q2.feedback_wrong,
+                    feedback_correct: quizData.questions.q2.feedback_correct
+                },
+                {
+                    id: 'q3',
+                    prompt: quizData.questions.q3.prompt,
+                    type: quizData.questions.q3.type, // 'piece'
+                    correct: quizData.questions.q3.correct, // 'Part'
+                    feedback_wrong: quizData.questions.q3.feedback_wrong,
+                    feedback_correct: quizData.questions.q3.feedback_correct
+                }
+            ];
+            
+            const currentQ = questions[currentQuestion];
+            
+            const handleAnswer = (answer) => {
+                if (showFeedback) return; // Prevent multiple clicks
+                
+                setSelectedAnswer(answer);
+                const correct = answer === currentQ.correct;
+                setIsCorrect(correct);
+                setShowFeedback(true);
+                
+                if (correct) {
+                    setCanProceed(true);
+                    // Auto-advance after showing correct feedback
+                    setTimeout(() => {
+                        if (currentQuestion < questions.length - 1) {
+                            setCurrentQuestion(prev => prev + 1);
+                            setSelectedAnswer(null);
+                            setShowFeedback(false);
+                            setCanProceed(false);
+                        } else {
+                            // Quiz complete - navigate to summary
+                            setTimeout(() => {
+                                window.sceneSystem.navigateToScene('summary');
+                            }, 1000);
+                        }
+                    }, 2500);
+                }
+                
+                // Play audio feedback
+                if (this.audioManager) {
+                    this.audioManager.playSound(correct ? 'correct' : 'incorrect');
+                }
+            };
+            
+            const renderCookieGraphic = (type) => {
+                if (type === 'piece') {
+                    return html`
+                        <div class="cookie-container">
+                            <svg width="200" height="200" viewBox="0 0 200 200" class="cookie-svg">
+                                <!-- Quarter piece of cookie -->
+                                <defs>
+                                    <pattern id="cookieTexture" patternUnits="userSpaceOnUse" width="20" height="20">
+                                        <circle cx="5" cy="5" r="2" fill="#8B4513"/>
+                                        <circle cx="15" cy="12" r="1.5" fill="#8B4513"/>
+                                        <circle cx="8" cy="15" r="1" fill="#8B4513"/>
+                                    </pattern>
+                                </defs>
+                                <path d="M 100 100 L 100 20 A 80 80 0 0 1 180 100 Z" 
+                                      fill="#D2B48C" stroke="#8B4513" stroke-width="3"/>
+                                <path d="M 100 100 L 100 20 A 80 80 0 0 1 180 100 Z" 
+                                      fill="url(#cookieTexture)" opacity="0.3"/>
+                                <text x="140" y="70" font-family="Arial, sans-serif" font-size="16" 
+                                      font-weight="bold" fill="#654321" text-anchor="middle">Cookie</text>
+                            </svg>
+                        </div>
+                    `;
+                } else {
+                    return html`
+                        <div class="cookie-container">
+                            <svg width="200" height="200" viewBox="0 0 200 200" class="cookie-svg">
+                                <!-- Whole cookie with quarter lines -->
+                                <defs>
+                                    <pattern id="cookieTexture" patternUnits="userSpaceOnUse" width="20" height="20">
+                                        <circle cx="5" cy="5" r="2" fill="#8B4513"/>
+                                        <circle cx="15" cy="12" r="1.5" fill="#8B4513"/>
+                                        <circle cx="8" cy="15" r="1" fill="#8B4513"/>
+                                        <circle cx="12" cy="8" r="1.2" fill="#8B4513"/>
+                                    </pattern>
+                                </defs>
+                                <circle cx="100" cy="100" r="80" fill="#D2B48C" stroke="#8B4513" stroke-width="3"/>
+                                <circle cx="100" cy="100" r="80" fill="url(#cookieTexture)" opacity="0.3"/>
+                                <!-- Quarter division lines -->
+                                <line x1="100" y1="20" x2="100" y2="180" stroke="#8B4513" stroke-width="2" opacity="0.7"/>
+                                <line x1="20" y1="100" x2="180" y2="100" stroke="#8B4513" stroke-width="2" opacity="0.7"/>
+                                <text x="100" y="105" font-family="Arial, sans-serif" font-size="18" 
+                                      font-weight="bold" fill="#654321" text-anchor="middle">Cookie</text>
+                            </svg>
+                        </div>
+                    `;
+                }
+            };
+            
+            return html`
+                <div class="cookie-quiz-scene">
+                    <!-- Three Panel Layout -->
+                    <div class="cookie-quiz-layout">
+                        <!-- Left Panel: Character & Dialogue -->
+                        <div class="quiz-left-panel">
+                            <div class="character-container">
+                                <div class="character-sprite cookie-man"></div>
+                                <div class="speech-bubble orange-border">
+                                    <div class="speech-pointer"></div>
+                                    <p>${currentQ.prompt}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Center Panel: Cookie Display -->
+                        <div class="quiz-center-panel">
+                            <div class="cookie-display-area">
+                                ${renderCookieGraphic(currentQ.type)}
+                            </div>
+                        </div>
+                        
+                        <!-- Right Panel: Options & Feedback -->
+                        <div class="quiz-right-panel brown-container">
+                            <div class="quiz-options">
+                                ${renderComponent('InteractiveElement', {
+                                    onClick: () => handleAnswer('Whole'),
+                                    className: `option-button whole-button ${
+                                        selectedAnswer === 'Whole' ? 
+                                            (isCorrect ? 'correct-selected' : 'wrong-selected') : 
+                                            ''
+                                    }`,
+                                    disabled: showFeedback && !canProceed,
+                                    ariaLabel: 'Select Whole as answer',
+                                    children: 'Whole'
+                                })}
+                                
+                                ${renderComponent('InteractiveElement', {
+                                    onClick: () => handleAnswer('Part'),
+                                    className: `option-button part-button ${
+                                        selectedAnswer === 'Part' ? 
+                                            (isCorrect ? 'correct-selected' : 'wrong-selected') : 
+                                            ''
+                                    }`,
+                                    disabled: showFeedback && !canProceed,
+                                    ariaLabel: 'Select Part as answer',
+                                    children: 'Part'
+                                })}
+                            </div>
+                            
+                            <!-- Feedback Area -->
+                            ${showFeedback ? html`
+                                <div class="feedback-area ${isCorrect ? 'correct-feedback' : 'wrong-feedback'}">
+                                    <div class="feedback-content">
+                                        <p>${isCorrect ? currentQ.feedback_correct : currentQ.feedback_wrong}</p>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    
+                    <!-- Bottom Navigation Bar -->
+                    <div class="bottom-navigation">
+                        <button class="nav-button back-button" onclick="window.sceneSystem.navigateToPrevious()">
+                            ◀
+                        </button>
+                        <div class="nav-instruction">
+                            ${showFeedback && isCorrect ? 
+                                'Tap ▶ to see the next question.' : 
+                                'Tap the correct answer.'
+                            }
+                        </div>
+                        <button class="nav-button next-button" 
+                                ${canProceed ? '' : 'disabled'}
+                                onclick="${canProceed ? 'window.sceneSystem.navigateToNext()' : ''}">
+                            ▶
+                        </button>
+                    </div>
+                </div>
+            `;
         });
     }
     
@@ -495,6 +740,12 @@ class SceneSystem {
             
             // Announce scene change for accessibility
             this.announceSceneChange();
+            
+            // Dispatch scene ready event after transition completes
+            const sceneReadyEvent = new CustomEvent('sceneReady', {
+                detail: { sceneIndex: toIndex }
+            });
+            document.dispatchEvent(sceneReadyEvent);
         }, 300);
     }
     
@@ -580,6 +831,13 @@ class SceneSystem {
         globalState.correctAnswers++;
         
         this.saveProgress();
+    }
+    
+    markSceneComplete(sceneId) {
+        this.markSceneCompleted(sceneId);
+        
+        // Update navigation buttons by re-rendering current scene
+        this.renderCurrentScene();
     }
     
     recordInteraction(sceneId, action, data = {}) {

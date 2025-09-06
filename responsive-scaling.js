@@ -212,6 +212,20 @@ class ResponsiveManager {
         root.style.setProperty('--spacing-lg', `${scaledSpacing * 3}px`);
         root.style.setProperty('--spacing-xl', `${scaledSpacing * 4}px`);
         
+        // Responsive character sizes - improved proportions
+        const baseCharacterSize = 120;
+        const scaledCharacterSize = Math.max(80, Math.min(280, baseCharacterSize * scaling.scale));
+        root.style.setProperty('--character-size-small', `${Math.max(80, scaledCharacterSize * 0.75)}px`);
+        root.style.setProperty('--character-size-medium', `${scaledCharacterSize}px`);
+        root.style.setProperty('--character-size-large', `${Math.max(160, scaledCharacterSize * 1.5)}px`);
+        root.style.setProperty('--character-height-main', `${Math.max(35, Math.min(75, 55 * scaling.scale))}vh`);
+        
+        // Food container sizing
+        const baseFoodSize = 300;
+        const scaledFoodSize = Math.max(200, Math.min(500, baseFoodSize * scaling.scale));
+        root.style.setProperty('--food-container-size', `${scaledFoodSize}px`);
+        root.style.setProperty('--food-disk-size', `${Math.max(250, scaledFoodSize * 0.9)}px`);
+        
         // Device-specific variables
         root.style.setProperty('--is-mobile', this.deviceInfo.isMobile ? '1' : '0');
         root.style.setProperty('--is-tablet', this.deviceInfo.isTablet ? '1' : '0');
