@@ -105,7 +105,6 @@ const appData = {
                     speech: "I'm so hungry!\nThis pizza looks delicious. Let's eat it.\n\nCut the pizza into pieces!",
                     showToolPanel: true,
                     cut: false,
-                    showPartLabels: false,
                     footerText: "Tap the slicer 🪄, then tap the pizza."
                 },
                 
@@ -114,7 +113,6 @@ const appData = {
                     speech: "Wait, the {whole} pizza is cut into different {parts}; How many parts is this Dee Tee?",
                     showToolPanel: false,
                     cut: "horizontal",
-                    showPartLabels: false,
                     footerText: "Tap ▶ to see what Dee Tee says."
                 },
                 
@@ -123,7 +121,6 @@ const appData = {
                     speech: "Let's check, Jax!\n\nCount the number of {parts} the {whole} pizza is cut into.",
                     showToolPanel: false,
                     cut: "cross",
-                    showPartLabels: false,
                     footerText: "Tap each part to count them."
                 },
                 
@@ -132,7 +129,6 @@ const appData = {
                     speech: "Yay! Good job!\n\nYes, this {whole} pizza is cut into 4 {parts}.",
                     showToolPanel: false,
                     cut: "cross",
-                    showPartLabels: true,
                     footerText: "Tap ▶ and let's keep following them!"
                 },
                 
@@ -142,7 +138,6 @@ const appData = {
                     showToolPanel: false,
                     toolMode: null,
                     cut: "cross",
-                    showPartLabels: true,
                     dimCanvas: false,
                     availableParts: [],
                     placedParts: [],
@@ -158,7 +153,6 @@ const appData = {
                     toolMode: "parts",
                     toolRailHeader: "Parts of the pizza.",
                     cut: "cross",
-                    showPartLabels: true,
                     dimCanvas: true,
                     availableParts: ["qTR", "qTL", "qBL", "qBR"],
                     placedParts: [],
@@ -174,7 +168,6 @@ const appData = {
                     toolMode: "parts",
                     toolRailHeader: "Parts of the pizza.",
                     cut: "cross",
-                    showPartLabels: true,
                     dimCanvas: true,
                     availableParts: ["qTL", "qBL", "qBR"],
                     placedParts: ["qTR"],
@@ -189,7 +182,6 @@ const appData = {
                     showToolPanel: false,
                     toolMode: null,
                     cut: false,
-                    showPartLabels: false,
                     dimCanvas: false,
                     availableParts: [],
                     placedParts: ["qTR", "qTL", "qBL", "qBR"],
@@ -211,11 +203,7 @@ const appData = {
                     count_the_slices: "Count the Slices",
                     tap_each_slice_to_count: "Tap each slice to count them",
                     parts_counted: "Parts counted",
-                    all_parts_counted: "Great! All parts counted!",
-                    part_labels: {
-                        1: "Part 1",
-                        2: "Part 2"
-                    }
+                    all_parts_counted: "Great! All parts counted!"
                 },
                 
                 // Scene 3 - Cheesecake Reassemble
@@ -255,13 +243,7 @@ const appData = {
                     count_the_slices: "Count the Slices",
                     tap_each_slice_to_count: "Tap each slice to count them",
                     parts_counted: "Parts counted",
-                    all_parts_counted: "Great! All parts counted!",
-                    part_labels: {
-                        1: "Part 1",
-                        2: "Part 2", 
-                        3: "Part 3",
-                        4: "Part 4"
-                    }
+                    all_parts_counted: "Great! All parts counted!"
                 },
                 
                 // Scene 5 - Pizza Reassemble

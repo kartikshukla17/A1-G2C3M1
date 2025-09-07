@@ -2,10 +2,14 @@
 
 /* Character Sprite */
 .character-sprite {
-    height: var(--character-height-main, clamp(200px, 50vh, 60%));
+    height: 40%;
     width: auto;
     object-fit: contain;
     filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 /* Character Footer Navigation */
@@ -109,7 +113,8 @@
     max-width: 100%;
     max-height: 100%;
     overflow: hidden;
-    padding: 1rem;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    margin: clamp(1rem, 3vw, 2rem);
     box-sizing: border-box;
 }
 
@@ -119,22 +124,13 @@
     height: clamp(250px, 35vw, 450px);
     max-width: 90%;
     max-height: 90%;
-    background: #E9E9E9;
-    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
     flex-shrink: 0;
 }
 
-.food-label {
-    font-size: clamp(24px, 4vw, 32px);
-    font-weight: bold;
-    color: #111111;
-    text-align: center;
-    pointer-events: none;
-}
+
 
 .cut-line {
     position: absolute;
@@ -157,116 +153,7 @@
     transform: translateY(-50%);
 }
 
-.part-labels {
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
-    transform: translateY(-50%);
-    display: flex;
-    justify-content: space-between;
-    padding: 0 clamp(-50px, -8vw, -30px);
-    pointer-events: none;
-}
 
-.part-label {
-    color: white;
-    font-size: clamp(14px, 2.2vw, 18px);
-    font-weight: bold;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-}
-
-.part-label::before {
-    content: '→';
-}
-
-.pizza-part-labels {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-}
-
-.pizza-part-label {
-    position: absolute;
-    color: white;
-    font-size: clamp(14px, 2.2vw, 18px);
-    font-weight: bold;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.pizza-part-label::before {
-    content: '';
-    width: 0;
-    height: 0;
-    border-left: 8px solid white;
-    border-top: 4px solid transparent;
-    border-bottom: 4px solid transparent;
-}
-
-/* Pizza part label positioning */
-.pizza-part-label.part-1 {
-    top: 20%;
-    right: -80px;
-    transform: rotate(20deg);
-}
-
-.pizza-part-label.part-2 {
-    top: 20%;
-    left: -80px;
-    transform: rotate(160deg);
-}
-
-.pizza-part-label.part-3 {
-    bottom: 20%;
-    left: -80px;
-    transform: rotate(220deg);
-}
-
-.pizza-part-label.part-4 {
-    bottom: 20%;
-    right: -80px;
-    transform: rotate(340deg);
-}
-
-.part-label::before {
-    content: '→';
-    margin-right: 8px;
-    font-size: clamp(16px, 2.5vw, 20px);
-}
-
-.part-label.part-2::before {
-    content: '←';
-    margin-right: 0;
-    margin-left: 8px;
-    order: 2;
-}
-
-.food-disk .part-label {
-    position: absolute;
-    color: white;
-    font-size: 16px;
-    font-weight: bold;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
-    pointer-events: none;
-}
-
-.food-disk .part-label.part-1 {
-    left: 25%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.food-disk .part-label.part-2 {
-    right: 25%;
-    top: 50%;
-    transform: translate(50%, -50%);
-}
 
 .canvas-caption {
     color: white;

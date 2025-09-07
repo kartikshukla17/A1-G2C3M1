@@ -177,8 +177,7 @@ class SceneSystem {
                         children: html`
                             ${render('NavButton', {
                                 variant: 'prev',
-                                onClick: handlePrevious,
-                                disabled: !this.canNavigatePrevious()
+                                onClick: handlePrevious
                             })}
                             ${render('SceneProgress', {
                                 text: orderData.instruction,
@@ -186,8 +185,7 @@ class SceneSystem {
                             })}
                             ${render('NavButton', {
                                 variant: 'next',
-                                onClick: handleNext,
-                                disabled: !this.canNavigateNext()
+                                onClick: handleNext
                             })}
                         `
                     })}
@@ -206,7 +204,7 @@ class SceneSystem {
             const [cheesecakeCutting, setCheesecakeCutting] = useState(false);
             const [partsSplitting, setPartsSplitting] = useState(false);
             const [animationStarted, setAnimationStarted] = useState(false);
-            const [showPartLabels, setShowPartLabels] = useState({ part1: false, part2: false });
+
             
             // Trigger slicer panel animation when scene is ready
             useEffect(() => {
@@ -259,17 +257,7 @@ class SceneSystem {
                 }
             };
             
-            const handlePartClick = (partNumber, event) => {
-                // Only allow part clicks after cheesecake is sliced
-                if (cheesecakeSliced) {
-                    event.stopPropagation(); // Prevent triggering parent click
-                    setShowPartLabels(prev => ({
-                        ...prev,
-                        [`part${partNumber}`]: !prev[`part${partNumber}`]
-                    }));
-                    this.recordInteraction('cheesecake_cut', `part_${partNumber}_clicked`);
-                }
-            };
+
             
             return html`
                 <div class="scene-cheesecake-cut">
@@ -304,31 +292,10 @@ class SceneSystem {
                                 ariaLabel: 'Cheesecake',
                                 children: html`
                                     <div class="cheesecake-whole ${cheesecakeSliced ? 'hidden' : ''}">
-                                        🍰
+                                        <img src="assets/cheesecake.png" alt="Whole cheesecake" class="cheesecake-image" />
                                     </div>
                                     <div class="cheesecake-parts ${cheesecakeSliced ? '' : 'hidden'} ${partsSplitting ? 'splitting' : ''}">
-                                        ${renderComponent('InteractiveElement', {
-                                            onClick: (e) => handlePartClick(1, e),
-                                            className: 'part part-1',
-                                            ariaLabel: 'Part 1 of cheesecake',
-                                            children: html`
-                                                🍰
-                                                <div class="part-label ${showPartLabels.part1 ? 'visible' : 'hidden'}">
-                                                    Part 1
-                                                </div>
-                                            `
-                                        })}
-                                        ${renderComponent('InteractiveElement', {
-                                            onClick: (e) => handlePartClick(2, e),
-                                            className: 'part part-2',
-                                            ariaLabel: 'Part 2 of cheesecake',
-                                            children: html`
-                                                🍰
-                                                <div class="part-label ${showPartLabels.part2 ? 'visible' : 'hidden'}">
-                                                    Part 2
-                                                </div>
-                                            `
-                                        })}
+                                        <img src="assets/cheesecake_partition.png" alt="Sliced cheesecake" class="cheesecake-sliced-image" />
                                     </div>
                                 `
                             })}
@@ -404,7 +371,7 @@ class SceneSystem {
                                 onDragEnd: (e, pos) => handlePartDrop(part.id, pos),
                                 className: `food-part cheesecake-part ${part.placed ? 'placed' : ''}`,
                                 style: `left: ${part.x}px; top: ${part.y}px;`,
-                                children: '🍰'
+                                children: html`<img src="assets/cheesecake_partition.png" alt="Cheesecake part" class="cheesecake-part-image" />`
                             })}
                         `).join('')}
                     </div>
@@ -640,7 +607,6 @@ class SceneSystem {
                             }
                         </div>
                         <button class="nav-button next-button" 
-                                ${canProceed ? '' : 'disabled'}
                                 onclick="${canProceed ? 'window.sceneSystem.navigateToNext()' : ''}">
                             ▶
                         </button>

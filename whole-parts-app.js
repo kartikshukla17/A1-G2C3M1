@@ -8,7 +8,7 @@ class WholePartsApp {
         this.isInitialized = false;
         this.pizzaCountingState = {
             countedParts: new Set(),
-            partLabels: [],
+    
             nextPartNumber: 1
         };
     }
@@ -150,15 +150,15 @@ class WholePartsApp {
             prevButton.setAttribute('data-variant', 'prev');
         }
         
-        if (nextButton) {
-            // Special handling for pizza counting mode
-            if (currentState.foodType === 'pizza' && currentState.interactiveMode === 'counting') {
-                nextButton.disabled = this.pizzaCountingState.countedParts.size < 4;
-            } else {
-                nextButton.disabled = !this.state.canGoNext();
-            }
-            nextButton.setAttribute('data-variant', 'next');
-        }
+        // if (nextButton) {
+        //     // Special handling for pizza counting mode
+        //     if (currentState.foodType === 'pizza' && currentState.interactiveMode === 'counting') {
+        //         nextButton.disabled = this.pizzaCountingState.countedParts.size < 4;
+        //     } else {
+        //         nextButton.disabled = !this.state.canGoNext();
+        //     }
+        //     nextButton.setAttribute('data-variant', 'next');
+        // }
         
         // Reset pizza counting state when entering counting mode
         if (currentState.foodType === 'pizza' && currentState.interactiveMode === 'counting' && 
@@ -189,25 +189,7 @@ class WholePartsApp {
         });
     }
     
-    // Handle piece clicking for showing part labels
-    handlePieceClick(pieceNumber) {
-        const currentState = this.state.getCurrentState();
-        
-        // Only handle piece clicks when the food is cut
-        if (currentState.cut) {
-            // Find the part label element and toggle its visibility
-            const partLabel = this.container.querySelector(`.part-label.part-${pieceNumber}`);
-            if (partLabel) {
-                partLabel.classList.toggle('visible');
-                
-                // Add a brief animation effect
-                partLabel.style.transform = 'scale(1.1)';
-                setTimeout(() => {
-                    partLabel.style.transform = '';
-                }, 200);
-            }
-        }
-    }
+
     
 
     
@@ -252,7 +234,7 @@ class WholePartsApp {
         this.pizzaCountingState.countedParts.add(quadrant);
         
         // Create and add label
-        this.addPizzaPartLabel(quadrant, this.pizzaCountingState.nextPartNumber);
+        
         this.pizzaCountingState.nextPartNumber++;
         
         // Check if all 4 parts are counted
@@ -270,84 +252,12 @@ class WholePartsApp {
         }
     }
     
-    addPizzaPartLabel(quadrant, partNumber) {
-        const foodDisk = this.container.querySelector('.food-disk');
-        if (!foodDisk) return;
-        
-        // Define anchor angles for each quadrant (in degrees)
-        const anchorAngles = [20, 160, 220, 340]; // TR, TL, BL, BR
-        const angle = anchorAngles[quadrant];
-        const angleRad = (angle * Math.PI) / 180;
-        
-        // Calculate label position (64px from disk edge)
-        const diskRadius = 120; // Half of 240px disk size
-        const labelDistance = diskRadius + 64;
-        const labelX = Math.cos(angleRad) * labelDistance;
-        const labelY = Math.sin(angleRad) * labelDistance;
-        
-        // Create label element
-        const label = document.createElement('div');
-        label.className = 'pizza-part-label';
-        label.textContent = `Part ${partNumber}`;
-        label.style.position = 'absolute';
-        label.style.left = `calc(50% + ${labelX}px)`;
-        label.style.top = `calc(50% + ${labelY}px)`;
-        label.style.transform = 'translate(-50%, -50%)';
-        label.style.color = 'white';
-        label.style.fontSize = '16px';
-        label.style.fontWeight = 'bold';
-        label.style.textShadow = '1px 1px 2px rgba(0,0,0,0.5)';
-        label.style.pointerEvents = 'none';
-        label.style.zIndex = '10';
-        
-        // Create arrow leader line
-        const arrow = document.createElement('div');
-        arrow.className = 'pizza-part-arrow';
-        arrow.style.position = 'absolute';
-        arrow.style.left = '50%';
-        arrow.style.top = '50%';
-        arrow.style.width = '64px';
-        arrow.style.height = '2px';
-        arrow.style.backgroundColor = 'white';
-        arrow.style.transformOrigin = '0 50%';
-        arrow.style.transform = `rotate(${angle}deg)`;
-        arrow.style.pointerEvents = 'none';
-        arrow.style.zIndex = '9';
-        
-        // Create arrow tip
-        const arrowTip = document.createElement('div');
-        arrowTip.style.position = 'absolute';
-        arrowTip.style.right = '-6px';
-        arrowTip.style.top = '-3px';
-        arrowTip.style.width = '0';
-        arrowTip.style.height = '0';
-        arrowTip.style.borderLeft = '6px solid white';
-        arrowTip.style.borderTop = '3px solid transparent';
-        arrowTip.style.borderBottom = '3px solid transparent';
-        arrow.appendChild(arrowTip);
-        
-        // Add to canvas area
-        const canvasArea = this.container.querySelector('.canvas-area');
-        if (canvasArea) {
-            canvasArea.appendChild(arrow);
-            canvasArea.appendChild(label);
-            
-            // Store references for cleanup
-             this.pizzaCountingState.partLabels.push({ label, arrow });
-         }
-     }
-     
-     resetPizzaCountingState() {
+    resetPizzaCountingState() {
          // Clear counted parts
          this.pizzaCountingState.countedParts.clear();
          this.pizzaCountingState.nextPartNumber = 1;
          
-         // Remove existing labels and arrows
-         this.pizzaCountingState.partLabels.forEach(({ label, arrow }) => {
-             if (label.parentNode) label.parentNode.removeChild(label);
-             if (arrow.parentNode) arrow.parentNode.removeChild(arrow);
-         });
-         this.pizzaCountingState.partLabels = [];
+
      }
 }
 

@@ -613,12 +613,12 @@ createComponent('CharacterOrderTile', (props) => {
 });
 
 const NavButton = createComponent('NavButton', (props) => {
-    const { variant = 'next', onStateChange = () => {} } = props;
+    const { variant = 'next', onStateChange = () => {}, disabled = false } = props;
     const isNext = variant === 'next';
     const label = isNext ? '▶' : '◀';
     
     return html`
-        <button class="nav-button" data-variant="${variant}">
+        <button class="nav-button" data-variant="${variant}" ${disabled ? 'disabled' : ''}>
             ${label}
         </button>
     `;
@@ -794,7 +794,7 @@ const CanvasArea = createComponent('CanvasArea', (props) => {
     const { state = {} } = props;
     const { 
         cut = false, 
-        showPartLabels = false, 
+ 
         canvasCaption = null, 
         dimCanvas = false, 
         placedParts = [], 
@@ -831,7 +831,7 @@ const CanvasArea = createComponent('CanvasArea', (props) => {
     return html`
         <div class="${canvasClass}">
             <div class="canvas-content">
-                ${FoodDisk.renderFunction({ label: foodLabel, cut, showPartLabels, dimCanvas, placedParts, foodType })}
+                ${FoodDisk.renderFunction({ label: foodLabel, cut, dimCanvas, placedParts, foodType })}
                 ${canvasCaption ? `<div class="canvas-caption">${canvasCaption}</div>` : ''}
             </div>
         </div>
@@ -949,6 +949,25 @@ if (typeof module !== 'undefined' && module.exports) {
     };
 }
 
+// Auto font-size scaling utility
+function autoScaleFontSize(element) {
+    const container = element.closest('.speech-bubble');
+    if (!container) return;
+    
+    const maxFontSize = 20;
+    const minFontSize = 10;
+    let fontSize = maxFontSize;
+    
+    // Reset to max font size
+    element.style.fontSize = fontSize + 'px';
+    
+    // Check if content overflows and reduce font size if needed
+    while (element.scrollHeight > container.clientHeight - 48 && fontSize > minFontSize) {
+        fontSize -= 1;
+        element.style.fontSize = fontSize + 'px';
+    }
+}
+
 const SpeechBubble = createComponent('SpeechBubble', (props) => {
     const { speech = '' } = props;
     
@@ -958,16 +977,27 @@ const SpeechBubble = createComponent('SpeechBubble', (props) => {
         .replace(/{parts}/g, '<span class="highlight-parts">parts</span>')
         .replace(/\n/g, '<br>');
     
-    return html`
+    // Create element with auto-scaling
+    const element = html`
         <div class="speech-bubble">
-            <div class="speech-content">${processedSpeech}</div>
+            <div class="speech-content" onload="autoScaleFontSize(this)">${processedSpeech}</div>
             <div class="speech-tail"></div>
         </div>
     `;
+    
+    // Apply auto-scaling after render
+    setTimeout(() => {
+        const speechContent = element.querySelector('.speech-content');
+        if (speechContent) {
+            autoScaleFontSize(speechContent);
+        }
+    }, 0);
+    
+    return element;
 });
 
 const FoodDisk = createComponent('FoodDisk', (props) => {
-    const { label = 'Cheesecake', cut = false, showPartLabels = false, dimCanvas = false, placedParts = [], foodType = 'cheesecake', toolMode = null } = props;
+    const { label = 'Cheesecake', cut = false, dimCanvas = false, placedParts = [], foodType = 'cheesecake', toolMode = null } = props;
     
     // Determine cut lines based on food type and cut state
     let cutLines = '';
@@ -992,48 +1022,41 @@ const FoodDisk = createComponent('FoodDisk', (props) => {
         `).join('');
     }
     
-    // Add clickable pieces if cut
-    let clickablePieces = '';
-    if (cut && foodType === 'cheesecake') {
-        clickablePieces = `
-            <div class="clickable-piece left-piece" onclick="window.wholePartsApp.handlePieceClick(1)" style="position: absolute; left: 0; top: 0; width: 50%; height: 100%; cursor: pointer; z-index: 10;"></div>
-            <div class="clickable-piece right-piece" onclick="window.wholePartsApp.handlePieceClick(2)" style="position: absolute; right: 0; top: 0; width: 50%; height: 100%; cursor: pointer; z-index: 10;"></div>
+    // Add partition image if cut
+    let partitionImage = '';
+    if (cut) {
+        const partitionSrc = foodType === 'pizza' ? 'assets/pizza-partition.png' : 'assets/cheesecake_partition.png';
+        const partitionAlt = foodType === 'pizza' ? 'Pizza partition' : 'Cheesecake partition';
+        partitionImage = `<img src="${partitionSrc}" alt="${partitionAlt}" class="food-part-image" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; border-radius: 50%; z-index: 5;" />`;
+    }
+    
+    // Add part labels for pizza
+    let partLabels = '';
+    if (cut && foodType === 'pizza') {
+        partLabels = `
+            <div class="part-label part-1" style="position: absolute; top: 10%; left: 10%; color: white; font-weight: bold; font-size: clamp(14px, 2.5vw, 18px); text-shadow: 2px 2px 4px rgba(0,0,0,0.8); z-index: 10; pointer-events: none;">Part 1</div>
+            <div class="part-label part-2" style="position: absolute; top: 10%; right: 10%; color: white; font-weight: bold; font-size: clamp(14px, 2.5vw, 18px); text-shadow: 2px 2px 4px rgba(0,0,0,0.8); z-index: 10; pointer-events: none;">Part 2</div>
+            <div class="part-label part-3" style="position: absolute; bottom: 10%; left: 10%; color: white; font-weight: bold; font-size: clamp(14px, 2.5vw, 18px); text-shadow: 2px 2px 4px rgba(0,0,0,0.8); z-index: 10; pointer-events: none;">Part 3</div>
+            <div class="part-label part-4" style="position: absolute; bottom: 10%; right: 10%; color: white; font-weight: bold; font-size: clamp(14px, 2.5vw, 18px); text-shadow: 2px 2px 4px rgba(0,0,0,0.8); z-index: 10; pointer-events: none;">Part 4</div>
         `;
     }
     
-    // Determine part labels based on food type
-    let partLabelsContent = '';
-    if (showPartLabels) {
-        if (foodType === 'pizza' && cut === 'cross') {
-            partLabelsContent = `
-                <div class="pizza-part-labels">
-                    <div class="pizza-part-label part-1">Part 1</div>
-                    <div class="pizza-part-label part-2">Part 2</div>
-                    <div class="pizza-part-label part-3">Part 3</div>
-                    <div class="pizza-part-label part-4">Part 4</div>
-                </div>
-            `;
-        } else {
-            // Default cheesecake 2-part labels
-            partLabelsContent = `
-                <div class="part-labels">
-                    <div class="part-label part-1 visible">Part 1</div>
-                    <div class="part-label part-2 visible">Part 2</div>
-                </div>
-            `;
-        }
-    }
+
+    
+    // Only show base food image if partition image is not present
+    const showBaseImage = !(cut && foodType === 'pizza');
     
     return html`
         <div class="food-disk-container">
             <div class="food-disk">
-                <div class="food-label">${label}</div>
+                ${showBaseImage ? `<img src="assets/${foodType === 'pizza' ? 'pizza' : 'cheesecake'}.png" alt="${foodType === 'pizza' ? 'Pizza' : 'Cheesecake'}" class="food-image" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; border-radius: 50%; z-index: 1;" />` : ''}
                 ${cutLines}
                 ${placedPartsContent}
-                ${clickablePieces}
+                ${partitionImage}
+                ${partLabels}
                 ${dimCanvas ? CanvasDimmingOverlay.renderFunction({ placedParts, toolMode }) : ''}
             </div>
-            ${partLabelsContent}
+
         </div>
     `;
 });
@@ -1053,7 +1076,7 @@ const PartThumbnail = createComponent('PartThumbnail', (props) => {
     // Default cheesecake parts
     return html`
         <div class="part-thumbnail ${part}-part" ${draggable ? 'draggable="true"' : ''}>
-            <div class="part-semicircle ${part}-semicircle"></div>
+            <img src="assets/cheesecake_partition.png" alt="Cheesecake part" class="cheesecake-part-image" />
         </div>
     `;
 });

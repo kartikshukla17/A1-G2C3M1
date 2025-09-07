@@ -12,7 +12,7 @@ class WholePartsState {
                 showToolPanel: false,
                 toolMode: null,
                 cut: false,
-                showPartLabels: false,
+
                 dimCanvas: false,
                 availableParts: [],
                 placedParts: [],
@@ -28,7 +28,7 @@ class WholePartsState {
                 showToolPanel: false,
                 toolMode: null,
                 cut: false,
-                showPartLabels: false,
+
                 dimCanvas: false,
                 availableParts: [],
                 placedParts: [],
@@ -44,7 +44,7 @@ class WholePartsState {
                 showToolPanel: true,
                 toolMode: 'slicer',
                 cut: false,
-                showPartLabels: false,
+
                 dimCanvas: false,
                 availableParts: [],
                 placedParts: [],
@@ -59,7 +59,7 @@ class WholePartsState {
                 showToolPanel: false,
                 toolMode: null,
                 cut: true,
-                showPartLabels: false,
+
                 dimCanvas: false,
                 availableParts: [],
                 placedParts: [],
@@ -74,7 +74,7 @@ class WholePartsState {
                 showToolPanel: false,
                 toolMode: null,
                 cut: true,
-                showPartLabels: false,
+
                 dimCanvas: false,
                 availableParts: [],
                 placedParts: [],
@@ -89,7 +89,7 @@ class WholePartsState {
                 showToolPanel: false,
                 toolMode: null,
                 cut: false,
-                showPartLabels: false,
+
                 dimCanvas: false,
                 availableParts: [],
                 placedParts: [],
@@ -104,7 +104,7 @@ class WholePartsState {
                 showToolPanel: false,
                 toolMode: null,
                 cut: true,
-                showPartLabels: true,
+
                 dimCanvas: false,
                 availableParts: [],
                 placedParts: [],
@@ -119,7 +119,7 @@ class WholePartsState {
                 showToolPanel: false,
                 toolMode: null,
                 cut: true,
-                showPartLabels: true,
+
                 dimCanvas: false,
                 availableParts: [],
                 placedParts: [],
@@ -133,7 +133,7 @@ class WholePartsState {
                 showToolPanel: false,
                 toolMode: null,
                 cut: false,
-                showPartLabels: false,
+
                 dimCanvas: false,
                 availableParts: [],
                 placedParts: [],
@@ -155,7 +155,7 @@ class WholePartsState {
                 showToolPanel: true,
                 toolMode: 'slicer',
                 cut: false,
-                showPartLabels: false,
+
                 dimCanvas: false,
                 availableParts: [],
                 placedParts: [],
@@ -171,7 +171,6 @@ class WholePartsState {
                 showToolPanel: false,
                 toolMode: null,
                 cut: 'horizontal',
-                showPartLabels: false,
                 dimCanvas: false,
                 availableParts: [],
                 placedParts: [],
@@ -187,7 +186,6 @@ class WholePartsState {
                 showToolPanel: false,
                 toolMode: null,
                 cut: 'cross',
-                showPartLabels: false,
                 dimCanvas: false,
                 availableParts: [],
                 placedParts: [],
@@ -204,7 +202,7 @@ class WholePartsState {
                 showToolPanel: false,
                 toolMode: null,
                 cut: 'cross',
-                showPartLabels: true,
+
                 dimCanvas: false,
                 availableParts: [],
                 placedParts: [],
@@ -220,7 +218,7 @@ class WholePartsState {
                 showToolPanel: false,
                 toolMode: null,
                 cut: 'cross',
-                showPartLabels: true,
+
                 dimCanvas: false,
                 availableParts: [],
                 placedParts: [],
@@ -237,7 +235,6 @@ class WholePartsState {
                 toolMode: 'parts',
                 toolRailHeader: "Parts of the pizza.",
                 cut: 'cross',
-                showPartLabels: true,
                 dimCanvas: true,
                 availableParts: ['qTR','qTL','qBL','qBR'],
                 placedParts: [],
@@ -253,7 +250,6 @@ class WholePartsState {
                 toolMode: 'parts',
                 toolRailHeader: "Parts of the pizza.",
                 cut: 'cross',
-                showPartLabels: true,
                 dimCanvas: true,
                 availableParts: ['qTL','qBL','qBR'],
                 placedParts: ['qTR'],
@@ -268,7 +264,6 @@ class WholePartsState {
                 showToolPanel: false,
                 toolMode: null,
                 cut: false,
-                showPartLabels: false,
                 dimCanvas: false,
                 availableParts: [],
                 placedParts: ['qTR','qTL','qBL','qBR'],
@@ -283,7 +278,6 @@ class WholePartsState {
                 showToolPanel: false,
                 toolMode: null,
                 cut: false,
-                showPartLabels: false,
                 dimCanvas: false,
                 availableParts: [],
                 placedParts: [],
@@ -305,7 +299,6 @@ class WholePartsState {
                 showToolPanel: true,
                 toolMode: 'quiz',
                 cut: false,
-                showPartLabels: false,
                 canvasCaption: null,
                 footerText: "Tap the correct answer.",
                 quiz: {
@@ -323,7 +316,6 @@ class WholePartsState {
                 showToolPanel: true,
                 toolMode: 'quiz',
                 cut: false,
-                showPartLabels: false,
                 canvasCaption: null,
                 footerText: "Tap the correct answer.",
                 quiz: {
@@ -341,7 +333,6 @@ class WholePartsState {
                 showToolPanel: true,
                 toolMode: 'quiz',
                 cut: false,
-                showPartLabels: false,
                 canvasCaption: null,
                 footerText: "Tap ▶ to see the next question.",
                 quiz: {

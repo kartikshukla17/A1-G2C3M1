@@ -252,11 +252,6 @@ class SceneImplementations {
                 return this.appData[this.currentLanguage]?.['content-ui']?.[key] || key;
             };
             
-            const getPartLabel = (index) => {
-                const labels = this.appData[this.currentLanguage]?.['content-ui']?.cheesecake_count?.part_labels;
-                return labels?.[index + 1] || `Part ${index + 1}`;
-            };
-            
             return `
                 <div class="scene cheesecake-slice-scene" data-scene="cheesecake-slice">
                     <div class="scene-header">
@@ -295,10 +290,7 @@ class SceneImplementations {
                                     ${Array.from({length: targetSlices}, (_, i) => `
                                         <div class="cheesecake-slice ${countedSlices.has(i) ? 'counted' : ''}" 
                                              onclick="handleSliceTap(${i})">
-                                            <div class="cheesecake-base"></div>
-                                            <div class="cheesecake-filling"></div>
-                                            <div class="cheesecake-topping"></div>
-                                            <div class="part-label">${getPartLabel(i)}</div>
+                                            <img src="assets/cheesecake_partition.png" alt="Cheesecake slice" class="cheesecake-part-image" />
                                         </div>
                                     `).join('')}
                                 </div>
@@ -373,7 +365,7 @@ class SceneImplementations {
                                          data-draggable="true"
                                          data-slice-id="${i + 1}"
                                          data-drag-config='{"returnToOrigin": false, "onDragEnd": "handleSlicePlaced"}'>
-                                        <div class="slice-content slice-${i + 1}"></div>
+                                        <img src="assets/cheesecake_partition.png" alt="Cheesecake slice" class="cheesecake-part-image" />
                                     </div>
                                 `).join('')}
                             </div>
@@ -566,9 +558,6 @@ class SceneImplementations {
                                              data-slice-id="${sliceId}"
                                              onclick="handleSliceTap(${sliceId})">
                                             <div class="slice-content slice-${sliceId}"></div>
-                                            <div class="part-label ${isCounted ? 'visible' : ''}">
-                                                Part ${sliceId}
-                                            </div>
                                         </div>
                                     `;
                                 }).join('')}
@@ -904,7 +893,7 @@ class SceneImplementations {
                                 
                                 <div class="learning-items">
                                     <div class="learning-item">
-                                        <div class="item-icon">🍰</div>
+                                        <div class="item-icon"><img src="assets/cheesecake.png" alt="Cheesecake" class="summary-icon" /></div>
                                         <div class="item-content">
                                             <h4>${getText('cheesecake_learning')}</h4>
                                             <p>${getText('cheesecake_description')}</p>
